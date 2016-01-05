@@ -10,9 +10,9 @@ Create a creds.json file, it should look like:
 
 ```
 {
-    account: 'your username',
-    key: 'an API key',
-    password: 'its password'
+    "account": "your username",
+    "key": "an API key",
+    "password": "its password"
 }
 ```
 
