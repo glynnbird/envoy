@@ -3,5 +3,6 @@
 export ACCOUNT='example'
 export API_KEY='sdlfksdfkjskdfjsdklf'
 export API_PASSWORD='sdkfsldfjsd98fs980dfs09'
+export PORT=3000
 
 node index.js

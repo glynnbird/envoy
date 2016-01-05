@@ -8,14 +8,10 @@
 
 ## Configure
 
-Copy `run.sh.example` to `run.sh` and `chmod +x run.sh`. Then edit `run.sh` to use your account and API key.
+Copy `run.sh.example` to `run.sh` and `chmod +x run.sh`. Then edit `run.sh` to use your account, API key, port and so on.
 
 ## Run
 
-`% npm start`
-
-This will start the server listening on port 8080 by default. To run it on a different port, use
-
-`% PORT=3000 npm start`
+`§ ./run.sh`
 
 Note that the app expects the remote database to exist and be called `mbaas`.
