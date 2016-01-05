@@ -2,15 +2,10 @@
 var express = require('express');
 var basicAuth = require('basic-auth');
 var Cloudant = require('cloudant');
+var creds = require('./creds.json');
 
 var app = express();
-
-var cloudant = new Cloudant({
-    account: 'drsm79',
-    key: 'sirithercenstationsuctio',
-    password: '76f1139b4da550e120e2735831b8c69f301cf87b'
-});
-
+var cloudant = new Cloudant(creds);
 
 // Authenticator
 function unauthorized(res) {
@@ -43,6 +38,9 @@ app.get('/', function(req, res) {
 var db = cloudant.db.use('mbaas');
 
 var stripAndSendJSON = function(data, res){
+    // 1. remove the authentication metadata
+    // 2. return the remaining JSON
+    // Should we strip the _rev, too?
     delete data['com.cloudant.meta'];
     res.json(data);
 };
@@ -52,8 +50,10 @@ app.get('/:id', auth, function(req, res) {
     // 2. Validate that the user has access
     // 3. return the document with the auth information stripped out
     db.get(req.params.id, function(err, data) {
-        console.log(err);
         console.log(data['com.cloudant.meta']);
+        if (err){
+            console.log(err);
+        };
         var user = basicAuth(req);
         var auth = data['com.cloudant.meta'].auth;
         if (auth.users.indexOf(user.name) >= 0) {
