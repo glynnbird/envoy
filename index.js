@@ -3,8 +3,11 @@ var express = require('express');
 var basicAuth = require('basic-auth');
 var Cloudant = require('cloudant');
 var creds = require('./creds.json');
+var bodyParser = require('body-parser');
 
 var app = express();
+app.use(bodyParser());
+
 var cloudant = new Cloudant(creds);
 
 // Authenticator
@@ -64,18 +67,61 @@ app.get('/:id', auth, function(req, res) {
     });
 });
 
+var writeDoc = function(db, data, req, res) {
+    db.insert(data, req.params.id, function(err, body) {
+        if (err) {
+            console.log(err);
+        }
+        res.json(body);
+    });
+}
+
 // Update a document
 app.post('/:id', auth, function(req, res) {
+
     // 1. Get the document from the db
     // 2. Validate that the user has access
     // 3. Write the doc with the auth information added back in, return the database response
+    
+    console.log(req.body);
+
+    db.get(req.params.id, function(err, data) {
+        console.log(data['com.cloudant.meta']);
+
+        if (err){
+            console.log(err);
+        };
+
+        var user = basicAuth(req);
+        var auth = data['com.cloudant.meta'].auth;
+        if (auth.users.indexOf(user.name) >= 0) {
+            var doc = req.body;
+            doc['com.cloudant.meta'] = {"auth": auth};
+            // TODO - should we require the user to send the current _rev
+            // also need to propagate 409 correctly
+            //doc['_rev'] = data['_rev'];
+            writeDoc(db, doc, req, res);
+        } else {
+            return unauthorized(res);
+        }
+        
+    });
 });
 
 // Insert a document
-app.put('/', auth, function(req, res) {
+app.put('/:id', auth, function(req, res) {
+
     // 1. Read the new doc
     // 2. Add auth information, user has access
     // 3. Write the doc, return the database response
+
+    console.log(req.body);
+
+    var doc = req.body;
+    var user = basicAuth(req);
+    doc['com.cloudant.meta'] = {'auth': {'users':[user.name]}};
+
+    writeDoc(db, doc, req, res);    
 });
 
 // TODO: API endpoint for setting permissions on a doc
