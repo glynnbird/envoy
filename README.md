@@ -8,15 +8,7 @@
 
 ## Configure
 
-Create a creds.json file, it should look like:
-
-```
-{
-    "account": "your username",
-    "key": "an API key",
-    "password": "its password"
-}
-```
+Copy `run.sh.example` to `run.sh` and `chmod +x run.sh`. Then edit `run.sh` to use your account and API key.
 
 ## Run
 
