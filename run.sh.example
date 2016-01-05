@@ -1,0 +1,7 @@
+#!/bin/bash
+
+export ACCOUNT='example'
+export API_KEY='sdlfksdfkjskdfjsdklf'
+export API_PASSWORD='sdkfsldfjsd98fs980dfs09'
+
+node index.js

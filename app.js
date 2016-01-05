@@ -2,11 +2,20 @@
 
 var app = module.exports = require('express')();
 var Cloudant = require('cloudant');
-var creds = require('./creds.json');
 var bodyParser = require('body-parser');
 var router = require('./lib/routes/index');
 
-var cloudant = new Cloudant(creds);
+// Required environment variables
+var account = process.env.ACCOUNT;
+var key = process.env.API_KEY;
+var password = process.env.API_PASSWORD;
+var port = parseInt(process.env.PORT, 10);
+
+var cloudant = new Cloudant({
+    account: account,
+    key: key,
+    password: password
+});
 
 var dbName = module.exports.dbName = 'mbaas';
 module.exports.db = cloudant.db.use(dbName);
