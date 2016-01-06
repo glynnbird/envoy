@@ -48,6 +48,16 @@ var stripAndSendJSON = function(data, res){
     res.json(data);
 };
 
+// helper method to write a json object to cloudant
+var writeDoc = function(db, data, req, res) {
+    db.insert(data, req.params.id, function(err, body) {
+        if (err) {
+            console.log(err);
+        }
+        res.json(body);
+    });
+}
+
 app.get('/:id', auth, function(req, res) {
     // 1. Get the document from the db
     // 2. Validate that the user has access
@@ -67,14 +77,6 @@ app.get('/:id', auth, function(req, res) {
     });
 });
 
-var writeDoc = function(db, data, req, res) {
-    db.insert(data, req.params.id, function(err, body) {
-        if (err) {
-            console.log(err);
-        }
-        res.json(body);
-    });
-}
 
 // Update a document
 app.post('/:id', auth, function(req, res) {
@@ -123,6 +125,31 @@ app.put('/:id', auth, function(req, res) {
 
     writeDoc(db, doc, req, res);    
 });
+
+// Delete a document
+app.delete('/:id', auth, function(req, res) {
+
+    db.get(req.params.id, req.query._rev, function(err, data) {
+        console.log(data['com.cloudant.meta']);
+        
+        if (err){
+            console.log(err);
+            // TODO doc not found?
+        };
+        
+        var user = basicAuth(req);
+        var auth = data['com.cloudant.meta'].auth;
+        if (auth.users.indexOf(user.name) >= 0) {
+            db.destroy(req.params.id, req.query._rev, function(err, data) {
+                stripAndSendJSON(data, res);
+            });
+        } else {
+            return unauthorized(res);
+        }
+    });
+
+});
+
 
 // TODO: API endpoint for setting permissions on a doc
 
