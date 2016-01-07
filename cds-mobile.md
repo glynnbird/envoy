@@ -8,9 +8,9 @@ Cloudant has the potential to be an ideal backend for a mobile application. It i
 
 However, Cloudant was never designed to be an _mbaas_ – a complete mobile application backend, and comparisons with dedicated mobile application backends such as Facebook's _Parse_ stack highlight our shortcomings in this area. Some of the problematic areas include:
 
-* _Analytics_
+* _Authorisation_
 
-    Application developers need a way of coping with millions of users whilst also deriving insight from the complete data set. The currently recommended solution of a database per user and replication of all user databases into a single analytics database is not viable as the number of users grow beyond a certain number.
+    Many use cases suitable for a database-backed mobile app require record-level access controls to ensure that each user can only see and update their own data. This problem is compounded by the need for analytics across the whole data set. The currently recommended solution of a database per user and replication of all user databases into a single analytics database is not viable as the number of users grow beyond a certain number.
 
 * _Authentication_
 
@@ -18,17 +18,14 @@ However, Cloudant was never designed to be an _mbaas_ – a complete mobile appl
 
 * _Unreliable networks_
 
-    A mobile app needs to carry on working in the face of unreliable networks. Cloudant's approach is to use its excellent replication capabilities to do bi-directional sync to a local data store on the device, but this is only viable for data sets of a certain size.
+    A mobile app needs to carry on working in the face of unreliable networks. Cloudant's approach is to use its excellent replication capabilities to do bi-directional sync to a local data store on the device, but this is only viable for small data sets as mobile devices by their very nature have limited storage facilities. 
+   
 
-* _Authorisation_
+There are many different ways to address these issues, client side, server side, or in a middle layer. We propose that a thin middleware gateway application be constructed. The reason for this is that it would allow the mobile-specific functionality could be kept separate from the database itself. The _mbaas_ aspect can be developed independently which means less complexity in the core and the development time and cost can be spread across more people.
 
-    Many use cases suitable for a database-backed mobile app require record-level access controls. Cloudant currently offers only database-level, and working around this limitation is both complex and poory scalable.
+## POC Goals: cds-mobile gateway
 
-There are many different ways to address these issues, client side, server side, or in a middle layer. We propose that a thin middle layer be constructed. The reason for this is that it would allow the mobile-specific functionality could be kept separate from the database itself. The _mbaas_ aspect can be developed independently which means less complexity in the core and the development time and cost can be spread across more people.
-
-## POC Goals: cds-mobile
-
-To build a thin node.js layer which is to serve as the backend for mobile development which allows document-level auth, users and groups. This would provide a way around the first and the third problem areas as described above: each app would be backed by a single database instead of a database per user, and reads and changes would be filtered by user identity.
+`CDS Mobile` is a thin gateway server application that sits between a Cloudant database and a mobile application. It implements document-level auth, users and groups. This would provide a way around the first and the third problem areas as described above: each app would be backed by a single database instead of a database per user, and reads and changes would be filtered by user identity.
 
 It is important to understand what this _isn't_. This isn't intended to be a new replicator, or even a way of providing features for other use cases: the intention is to make us more competitive in the mobile sphere. By its very nature (e.g. millions of simultaneous users) this layer needs to be as thin as it can be in order to not to become a bottle neck.
 
@@ -112,7 +109,8 @@ the result should be
 
 If `hermione` now were to request this document she should get a `401 Unauthorized` response.
 
-We use the field name `com.cloudant.meta` and not a proper underscored fields as the latter would require modifications to the core database (both Cloudant and CouchDB) which is something we specifically want to avoid.
+CouchDB uses certain special fields that starts with an underscore to denote metadata. Ideally, we'd use something like "_auth" for our purpose, but CouchDB will strip out any underscored fields it doesn't recognise. For this reason, we use the field name `com.cloudant.meta`, as we don't want to modify the behaviour of the CouchDB underneath. The consequence this has is that documents may not contain a field called
+`com.cloudant.meta`. 
 
 ## Filtered replication
 
@@ -126,7 +124,7 @@ All query requests need to implicitly add on a
 {
     "selector": {
         "$or": [
-            "auth.users":  { "$elemMatch": { "$eq": USER } },
+            "auth.users":  { "$elemMatch": { "$eq": "USER" } },
             "auth.groups": { "$elemMatch": { "$eq": "public" } }
         ]
     }  
