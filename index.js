@@ -4,6 +4,8 @@ var basicAuth = require('basic-auth');
 var Cloudant = require('cloudant');
 var creds = require('./creds.json');
 var bodyParser = require('body-parser');
+var _ = require('underscore');
+
 
 var app = express();
 app.use(bodyParser());
@@ -57,6 +59,73 @@ var writeDoc = function(db, data, req, res) {
         res.json(body);
     });
 }
+
+// _bulk_docs
+
+app.post('/_bulk_docs', auth, function(req, res) {
+
+    // TODO - support new_edits=false case correctly
+    // (this is important for the replicator to work)
+
+    // iterate through docs
+
+    var ids = {"keys": _.map(req.body.docs, function(doc) {
+        return doc._id;
+    })};
+
+    // for now we don't care about _rev in this hash but we will do later...
+    var docsById = _.reduce(req.body.docs, function(hash, doc) {
+        hash[doc._id] = doc;
+        return hash;
+    }, {});
+
+    // TODO - although we ask for conflicts, we don't handle them yet.
+
+    // for each doc check we have permissions correct
+    // if true, upload doc
+    // otherwise error
+
+    db.fetch(ids, {"conflicts": true}, function(err, body) {
+        var user = basicAuth(req);
+        var goodDocs = _.filter(body.rows, function(row) {
+            if (row.doc) {
+                var auth = row.doc['com.cloudant.meta'].auth;
+                return (auth.users.indexOf(user.name) >= 0);
+            } 
+        }).map(function(row) {
+            var newDoc = docsById[row.doc._id];
+            var auth = row.doc['com.cloudant.meta'].auth;
+            // overwrite the auth from the previous doc
+            newDoc["com.cloudant.meta"] = {"auth": auth};
+            return newDoc;
+        });
+
+        console.log("GOOD DOCS:"+JSON.stringify(goodDocs));
+    
+        var badDocs = _.filter(body.rows, function(row) {
+            // docs that exist but don't have correct auth
+            if (row.doc) {
+                var auth = row.doc['com.cloudant.meta'].auth;
+                return !(auth.users.indexOf(user.name) >= 0);
+            } else {
+                return false;
+            }
+        });
+
+        console.log("BAD DOCS:"+JSON.stringify(badDocs));
+
+        // TODO deal with bad docs and tell the user (or replicator?)
+
+        db.bulk({"docs": goodDocs}, function(err, body) {
+            if (err) {
+                console.log(err);
+            } else {
+                res.json(body);
+            }
+        });
+    });
+});
+
 
 app.get('/:id', auth, function(req, res) {
     // 1. Get the document from the db
