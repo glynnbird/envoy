@@ -55,8 +55,10 @@ var writeDoc = function(db, data, req, res) {
     db.insert(data, req.params.id, function(err, body) {
         if (err) {
             console.log(err);
+            res.status(err.statusCode).send({error: err.error, reason: err.reason});
+        } else {
+            res.json(body);
         }
-        res.json(body);
     });
 }
 
@@ -132,20 +134,23 @@ app.get('/:id', auth, function(req, res) {
     // 2. Validate that the user has access
     // 3. return the document with the auth information stripped out
     db.get(req.params.id, function(err, data) {
-        console.log(data['com.cloudant.meta']);
+
         if (err){
             console.log(err);
-        };
-        var user = basicAuth(req);
-        var auth = data['com.cloudant.meta'].auth;
-        if (auth.users.indexOf(user.name) >= 0) {
-            stripAndSendJSON(data, res);
+            // Propagate the error
+            res.status(err.statusCode).send({error: err.error, reason: err.reason});
         } else {
-            return unauthorized(res);
+            console.log(data['com.cloudant.meta']);
+            var user = basicAuth(req);
+            var auth = data['com.cloudant.meta'].auth;
+            if (auth.users.indexOf(user.name) >= 0) {
+                stripAndSendJSON(data, res);
+            } else {
+                return unauthorized(res);
+            }
         }
     });
 });
-
 
 // Update a document
 app.post('/:id', auth, function(req, res) {
@@ -159,23 +164,23 @@ app.post('/:id', auth, function(req, res) {
     db.get(req.params.id, function(err, data) {
         console.log(data['com.cloudant.meta']);
 
-        if (err){
+        if (err) {
             console.log(err);
-        };
-
-        var user = basicAuth(req);
-        var auth = data['com.cloudant.meta'].auth;
-        if (auth.users.indexOf(user.name) >= 0) {
-            var doc = req.body;
-            doc['com.cloudant.meta'] = {"auth": auth};
-            // TODO - should we require the user to send the current _rev
-            // also need to propagate 409 correctly
-            //doc['_rev'] = data['_rev'];
-            writeDoc(db, doc, req, res);
+            res.status(err.statusCode).send({error: err.error, reason: err.reason});
         } else {
-            return unauthorized(res);
+            var user = basicAuth(req);
+            var auth = data['com.cloudant.meta'].auth;
+            if (auth.users.indexOf(user.name) >= 0) {
+                var doc = req.body;
+                doc['com.cloudant.meta'] = {"auth": auth};
+                // TODO - should we require the user to send the current _rev
+                // also need to propagate 409 correctly
+                //doc['_rev'] = data['_rev'];
+                writeDoc(db, doc, req, res);
+            } else {
+                return unauthorized(res);
+            }
         }
-        
     });
 });
 
