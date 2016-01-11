@@ -5,12 +5,19 @@ var Cloudant = require('cloudant');
 var creds = require('./creds.json');
 var bodyParser = require('body-parser');
 var _ = require('underscore');
-
+var request = require('request');
 
 var app = express();
 app.use(bodyParser());
 
 var cloudant = new Cloudant(creds);
+
+var dbName = 'mbaas';
+var username = 'foo';
+var password = 'bar';
+
+// some useful constants
+var metaKey = 'com.cloudant.meta';
 
 // Authenticator
 function unauthorized(res) {
@@ -25,7 +32,7 @@ var auth = function (req, res, next) {
     return unauthorized(res);
   }
   // Call into for realz auth here
-  if (user.name === 'foo' && user.pass === 'bar') {
+  if (user.name === username  && user.pass === password) {
     return next();
   } else {
     return unauthorized(res);
@@ -40,13 +47,13 @@ app.get('/', function(req, res) {
     res.end();
 });
 
-var db = cloudant.db.use('mbaas');
+var db = cloudant.db.use(dbName);
 
 var stripAndSendJSON = function(data, res){
     // 1. remove the authentication metadata
     // 2. return the remaining JSON
     // Should we strip the _rev, too?
-    delete data['com.cloudant.meta'];
+    delete data[metaKey];
     res.json(data);
 };
 
@@ -60,6 +67,31 @@ var writeDoc = function(db, data, req, res) {
             res.json(body);
         }
     });
+}
+
+// helper function to call changes feed with _doc_ids filter
+function filteredChanges(ids, seq, fn) {
+    var url = db.config.url + "/" + dbName + "/_changes?filter=_doc_ids"
+    var requestBody = {"doc_ids": ids};
+    var queryOptions = {"filter":"_doc_ids"};
+    if (seq) {
+        queryOptions.since = seq;
+    }
+    request(
+        {
+            url: url,
+            qs: queryOptions,
+            method: "POST",
+            json: requestBody
+        },
+        function (error, response, body) {
+            if (error) {
+                fn(error, null);
+            } else {
+                fn(null, body);
+            }
+        }
+    );
 }
 
 // _bulk_docs
@@ -91,12 +123,12 @@ app.post('/_bulk_docs', auth, function(req, res) {
         var user = basicAuth(req);
         var goodDocs = _.filter(body.rows, function(row) {
             if (row.doc) {
-                var auth = row.doc['com.cloudant.meta'].auth;
+                var auth = row.doc[metaKey].auth;
                 return (auth.users.indexOf(user.name) >= 0);
             } 
         }).map(function(row) {
             var newDoc = docsById[row.doc._id];
-            var auth = row.doc['com.cloudant.meta'].auth;
+            var auth = row.doc[metaKey].auth;
             // overwrite the auth from the previous doc
             newDoc["com.cloudant.meta"] = {"auth": auth};
             return newDoc;
@@ -107,7 +139,7 @@ app.post('/_bulk_docs', auth, function(req, res) {
         var badDocs = _.filter(body.rows, function(row) {
             // docs that exist but don't have correct auth
             if (row.doc) {
-                var auth = row.doc['com.cloudant.meta'].auth;
+                var auth = row.doc[metaKey].auth;
                 return !(auth.users.indexOf(user.name) >= 0);
             } else {
                 return false;
@@ -128,6 +160,36 @@ app.post('/_bulk_docs', auth, function(req, res) {
     });
 });
 
+// _changes
+//
+// Get all owned docs from the users view, and pass this to the CouchDB _changes
+// end point with the 'doc_ids' filter. Note: this doesn't work for Cloudant pre
+// dbnext, but is supported on CouchDB v1.6.X+
+app.get('/_changes', auth, function(req, res) {
+    var user = basicAuth(req);
+    
+    db.view('auth', 'userdocs', {key: user.name}, function(err, body) {
+        if (err){
+            console.log(err);
+            // Propagate the error
+            res.sendStatus(err.statusCode).send({error: err.error, reason: err.reason});
+        } else {
+            var ids = _.map(body.rows,
+                            function(row) {return row.id;});
+            var seq; // comes from request, optional
+            if (req.query.since) {
+                seq = req.query.since;
+            }
+            filteredChanges(ids, seq, function(err, body) {
+                if (err) {
+                    res.sendStatus(err.statusCode).send({error: err.error, reason: err.reason});
+                } else {
+                    res.json(body);
+                }
+            });
+        }
+    });
+});
 
 app.get('/:id', auth, function(req, res) {
     // 1. Get the document from the db
@@ -140,9 +202,9 @@ app.get('/:id', auth, function(req, res) {
             // Propagate the error
             res.status(err.statusCode).send({error: err.error, reason: err.reason});
         } else {
-            console.log(data['com.cloudant.meta']);
+            console.log(data[metaKey]);
             var user = basicAuth(req);
-            var auth = data['com.cloudant.meta'].auth;
+            var auth = data[metaKey].auth;
             if (auth.users.indexOf(user.name) >= 0) {
                 stripAndSendJSON(data, res);
             } else {
@@ -162,17 +224,17 @@ app.post('/:id', auth, function(req, res) {
     console.log(req.body);
 
     db.get(req.params.id, function(err, data) {
-        console.log(data['com.cloudant.meta']);
+        console.log(data[metaKey]);
 
         if (err) {
             console.log(err);
             res.status(err.statusCode).send({error: err.error, reason: err.reason});
         } else {
             var user = basicAuth(req);
-            var auth = data['com.cloudant.meta'].auth;
+            var auth = data[metaKey].auth;
             if (auth.users.indexOf(user.name) >= 0) {
                 var doc = req.body;
-                doc['com.cloudant.meta'] = {"auth": auth};
+                doc[metaKey] = {"auth": auth};
                 // TODO - should we require the user to send the current _rev
                 // also need to propagate 409 correctly
                 //doc['_rev'] = data['_rev'];
@@ -195,7 +257,7 @@ app.put('/:id', auth, function(req, res) {
 
     var doc = req.body;
     var user = basicAuth(req);
-    doc['com.cloudant.meta'] = {'auth': {'users':[user.name]}};
+    doc[metaKey] = {'auth': {'users':[user.name]}};
 
     writeDoc(db, doc, req, res);    
 });
@@ -204,7 +266,7 @@ app.put('/:id', auth, function(req, res) {
 app.delete('/:id', auth, function(req, res) {
 
     db.get(req.params.id, req.query._rev, function(err, data) {
-        console.log(data['com.cloudant.meta']);
+        console.log(data[metaKey]);
         
         if (err){
             console.log(err);
@@ -212,7 +274,7 @@ app.delete('/:id', auth, function(req, res) {
         };
         
         var user = basicAuth(req);
-        var auth = data['com.cloudant.meta'].auth;
+        var auth = data[metaKey].auth;
         if (auth.users.indexOf(user.name) >= 0) {
             db.destroy(req.params.id, req.query._rev, function(err, data) {
                 stripAndSendJSON(data, res);
@@ -224,7 +286,7 @@ app.delete('/:id', auth, function(req, res) {
 
 });
 
-
 // TODO: API endpoint for setting permissions on a doc
+
 
 app.listen(process.env.PORT || 8080);
