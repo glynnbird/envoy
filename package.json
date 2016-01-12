@@ -2,17 +2,16 @@
   "name": "cds-mobile",
   "version": "0.0.0",
   "description": "A mobile backend shim to Cloudant",
-  "main": "index.js",
-  "scripts": {
-    "test": "npm test"
-  },
+  "author": "",
   "keywords": [
     "backend",
     "node",
     "cloudant"
   ],
-  "author": "",
   "license": "MIT",
+  "scripts": {
+    "start": "node ./bin/www"
+  },
   "dependencies": {
     "basic-auth": "^1.0.3",
     "body-parser": "^1.14.2",
