@@ -1,5 +1,7 @@
 # cds-mobile
 
+<img src="https://travis.innovate.ibm.com/CloudDataServices/cds-mobile.svg?token=t57QjqTUQ8rv6Xvy4sDm"/>
+
 ## Set up
 
 `% npm install`
