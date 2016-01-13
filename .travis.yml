@@ -5,7 +5,8 @@ git:
   depth: 30
 sudo:
   false
-script: npm run $COMMAND
+script:
+  npm run test
 branches:
   only:
   - master
