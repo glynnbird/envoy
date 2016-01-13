@@ -10,6 +10,7 @@ var account = process.env.ACCOUNT;
 var key = process.env.API_KEY;
 var password = process.env.API_PASSWORD;
 var port = parseInt(process.env.PORT, 10);
+var databaseName = process.env.MBAAS_DATABASE_NAME;
 
 var cloudant = new Cloudant({
     account: account,
@@ -17,7 +18,7 @@ var cloudant = new Cloudant({
     password: password
 });
 
-var dbName = module.exports.dbName = 'mbaas';
+var dbName = module.exports.dbName = databaseName;
 module.exports.db = cloudant.db.use(dbName);
 module.exports.metaKey = 'com.cloudant.meta';
 
