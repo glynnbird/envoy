@@ -6,4 +6,4 @@ export API_PASSWORD='sdkfsldfjsd98fs980dfs09'
 export PORT=3000
 export MBAAS_DATABASE_NAME='mbaas'
 
-node index.js
+npm start
