@@ -14,8 +14,6 @@ Copy `run.sh.example` to `run.sh` and `chmod +x run.sh`. Then edit `run.sh` to u
 
 `% ./run.sh npm start`
 
-Note that the app expects the remote database to exist and be called `mbaas`.
-
 ## Developers
 
 Unit tests are executed using mocha (the server is automatically started):
