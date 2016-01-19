@@ -14,8 +14,3 @@ env:
     - MBAAS_DATABASE_NAME='mbaas'
 script:
   npm run test && mocha
-branches:
-  only:
-  - master
-  - mocha-tests
-
