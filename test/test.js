@@ -37,10 +37,19 @@
 // update doc1 to be owned by baz
 // invoke _changes: doc2@rev1, doc3@rev1 seen
 
+//var www = require('../bin/www');
+var app = require('../app');
 var assert = require('assert');
 var request = require('supertest');
 var urllib = require('url');
-var www = require('../bin/www');
+
+before(function(done) {
+  this.timeout(15000);
+  app.events.on('listening', function() {
+    console.log('Server is up');
+    done();
+  });
+});
 
 //var should = require('should');
 
