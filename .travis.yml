@@ -13,4 +13,4 @@ env:
     - PORT=8080
     - MBAAS_DATABASE_NAME='mbaas'
 script:
-  npm run test && mocha
+  npm run test && mocha -t 5000
