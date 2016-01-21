@@ -293,8 +293,107 @@ describe('CRUD tests', function() {
 
 });
 
+describe('Changes feed tests', function() {
+
+  var lastSeq;
+  var doc1Name;
+  var doc2Name;
+  var doc3Name;
+
+  before(function(done) {
+
+    // capture the latest change sequence, as our tests only care
+    // about changes after this point
+    
+    // NB this means we make a very large assumption that no-one else
+    // is fiddling with the database when we run this test!
+
+    var docName = makeDocName();
+    doc1Name = docName+"_1";
+    doc2Name = docName+"_2";
+    doc3Name = docName+"_3";
+
+    var body = {'hello': 'world'};
+    var rev;
+    
+    // create docs
+    async.series([
+
+      // capture update_seq before we start
+      function(next) {
+        request(app.db.config.url).get("/"+app.db.config.db)
+          .send()
+          .end(function(err, res) {
+            // cloudant doesn't set the content-type to json so we have to parse it
+            lastSeq = JSON.parse(res.text).update_seq;
+            next();
+          });
+      },
+      
+      // insert doc1: owned by foo
+      // insert doc2: owned by bar
+      // insert doc3: owned by baz
+      
+      function(next) {
+        request(url(username, password)).put('/'+doc1Name)
+          .send(body)
+          .end(function(err, res) {
+            assert.equal(res.statusCode, 200);           
+            next();
+          });
+      },
+      function(next) {
+        request(url('alice', 'baz')).put('/'+doc2Name)
+          .send(body)
+          .end(function(err, res) {
+            assert.equal(res.statusCode, 200);           
+            next();
+          });
+      },
+      function(next) {
+        request(url('bob', 'secret')).put('/'+doc3Name)
+          .send(body)
+          .end(function(err, res) {
+            assert.equal(res.statusCode, 200);           
+            next();
+          });
+      },
+      function() {
+        done();
+      }
+    ]);
+        
+
+  });
+
+  it('changes feed presents correct documents', function(done) {
+
+    // invoke _changes: doc1@rev1 seen. save sequence to seq1
+    
+    request(url(username, password)).get('/_changes?since='+lastSeq)
+      .send()
+      .end(function(err, res) {
+        // 1 doc in changes feed, owned by foo
+        assert.equal(res.body.results.length, 1);
+        assert.equal(res.body.results[0].id, doc1Name);
+        done();
+      });
+
+    // update doc1
+    // invoke _changes: doc1@rev1, doc1@rev2 seen
+    // invoke _changes with argument seq=seq1: doc1@rev2 seen
+    // update doc2 and doc3 to be owned by foo
+    // invoke _changes: doc1@rev1, doc1@rev2, doc2@rev1, doc3@rev1 seen
+    // update doc1 to be owned by baz
+    // invoke _changes: doc2@rev1, doc3@rev1 seen
+  });
+  
+  
+});
+
 function makeDocName() {
   var doc = 'test_doc_'+new Date().getTime();
   return doc;
   
 }
+
