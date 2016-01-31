@@ -1,6 +1,7 @@
-var env = require('../lib/env.js'),
-  assert = require('assert'),
-  _ = require('underscore');
+var assert = require('assert');
+var env = require('../lib/env.js');
+var assert = require('assert');
+var _ = require('underscore');
 
 describe('environment variable tests - Bluemix mode', function() {
   var originalEnv;
