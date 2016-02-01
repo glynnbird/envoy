@@ -11,19 +11,15 @@ var events = require('events');
 var ee = new events.EventEmitter();
 
 // Required environment variables
-var account = process.env.ACCOUNT;
-var key = process.env.API_KEY;
-var password = process.env.API_PASSWORD;
-var port = parseInt(process.env.PORT, 10);
-var databaseName = process.env.MBAAS_DATABASE_NAME;
+var env = require('./lib/env').getCredentials();
 
 var cloudant = new Cloudant({
-  account: account,
-  key: key,
-  password: password
+  account: env.account,
+  key: env.key || env.username,
+  password: env.password
 });
 
-var dbName = app.dbName = databaseName;
+var dbName = app.dbName = env.databaseName;
 app.db = cloudant.db.use(dbName);
 app.metaKey = 'com.cloudant.meta';
 app.events = ee;
@@ -47,7 +43,8 @@ function main() {
     res.status(err.statusCode || 500).send('Something broke!');
   });
 
-  app.listen(port);
+  app.listen(env.port);
+  console.log("[OK]  msin: Started app on", env.url);
 }
 
 // Make sure that any init stuff is executed before
