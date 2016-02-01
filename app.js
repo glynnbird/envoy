@@ -9,6 +9,9 @@ var async = require('async');
 var init = require('./lib/init');
 var events = require('events');
 var ee = new events.EventEmitter();
+var url = require('url');
+var morgan = require('morgan');
+var fs = require('fs');
 
 // Required environment variables
 var env = require('./lib/env').getCredentials();
@@ -23,6 +26,25 @@ var dbName = app.dbName = env.databaseName;
 app.db = cloudant.db.use(dbName);
 app.metaKey = 'com.cloudant.meta';
 app.events = ee;
+app.cloudant = cloudant;
+
+app.serverURL = url.format({
+  protocol: 'https',
+  hostname: env.account + '.cloudant.com',
+});
+
+// Set up the logging directory
+var logDirectory = __dirname + '/logs';
+if (!fs.existsSync(logDirectory)) {
+   fs.mkdirSync(logDirectory);
+}
+
+// Create a write stream (in append mode)
+var accessLogStream =
+  fs.createWriteStream(logDirectory + '/access.log', {flags: 'a'});
+
+// Setup the logger
+app.use(morgan('dev', {stream: accessLogStream}));
 
 function main() {
   app.use(bodyParser.json());
@@ -44,7 +66,6 @@ function main() {
   });
 
   app.listen(env.port);
-  console.log("[OK]  msin: Started app on", env.url);
 }
 
 // Make sure that any init stuff is executed before
@@ -68,5 +89,6 @@ async.series(
     main();
 
     ee.emit('listening');
+    console.log('[OK]  main: Started app on', env.url);
   }
 );

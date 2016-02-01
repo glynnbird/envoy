@@ -37,12 +37,13 @@
 // update doc1 to be owned by baz
 // invoke _changes: doc2@rev1, doc3@rev1 seen
 
-//var www = require('../bin/www');
+var util = require('util');
 var app = require('../app');
 var assert = require('assert');
 var request = require('supertest');
 var urllib = require('url');
 var async = require('async');
+var _ = require('underscore');
 
 before(function(done) {
   this.timeout(15000);
@@ -64,7 +65,8 @@ function url(user, password) {
     protocol: 'http',
     auth: user + ':' + password,
     hostname: 'localhost',
-    port: port
+    port: port,
+    pathname: 'mbaas'
   });
 }
 
@@ -76,7 +78,7 @@ describe('CRUD tests', function() {
     var body = {'hello': 'world'};
     request(url(username, password)).put(path)
       .send(body)
-      .end(function(err,res){
+      .end(function(err, res){
         if (err) {
           throw err;
         }
@@ -103,7 +105,7 @@ describe('CRUD tests', function() {
     };
     request(url(username, password)).put(path)
       .send({'foo':'bar'})
-      .end(function(err,res){
+      .end(function(err, res){
         if (err) {
           throw err;
         }
@@ -115,7 +117,7 @@ describe('CRUD tests', function() {
 
   it('create doc unsuccessfully, incorrect creds', function(done) {
     var path = '/' + makeDocName();
-    var body = {'hello':'world'};
+    var body = {'hello': 'world'};
     request(url(username, badPassword)).put(path)
       .send(body)
       .end(function(err,res){
@@ -146,7 +148,8 @@ describe('CRUD tests', function() {
       });
   });
 
-  it('update doc successfully, auth medatada is inherited from parent doc', function(done) {
+  it('update doc successfully, auth '+
+  'medatada is inherited from parent doc', function(done) {
 
     var path = '/' + makeDocName();
     var body1 = {'hello': 'world'};
@@ -180,7 +183,7 @@ describe('CRUD tests', function() {
               throw err;
             }
             assert.equal(res.statusCode, 200);
-            assert(res.body._rev.startsWith("2-"));
+            assert(res.body._rev.startsWith('2-'));
             next();
           });
       },
@@ -238,13 +241,13 @@ describe('CRUD tests', function() {
           .end(function(err, res) {
             assert.equal(res.statusCode, 200);
             // capture revision so we can delete
-            rev = res.body._rev;
+            rev = res.body.rev;
             next();
           });
       },
       function(next) {
         // delete doc
-        request(url(username, password)).del(path+"?_rev="+rev)
+        request(url(username, password)).del(path+'?rev='+rev)
           .send()
           .end(function(err, res) {
             assert.equal(res.statusCode, 200);
@@ -257,7 +260,7 @@ describe('CRUD tests', function() {
       }
     ]);
   });
-  
+
   it('delete doc unsuccessfully, incorrect creds', function(done) {
     var path = '/' + makeDocName();
     var body = {'hello': 'world'};
@@ -270,13 +273,13 @@ describe('CRUD tests', function() {
           .end(function(err, res) {
             assert.equal(res.statusCode, 200);
             // capture revision so we can delete
-            rev = res.body._rev;
+            rev = res.body.rev;
             next();
           });
       },
       function(next) {
         // delete doc
-        request(url(username, badPassword)).del(path+"?_rev="+rev)
+        request(url(username, badPassword)).del(path+'?rev='+rev)
           .send()
           .end(function(err, res) {
             assert.equal(res.statusCode, 401);
@@ -293,8 +296,148 @@ describe('CRUD tests', function() {
 
 });
 
+describe('Replication-related tests', function() {
+
+  it('check _changes', function(done) {
+    this.timeout(150000);
+
+    async.waterfall([
+      // Step 1: insert doc1: owned by foo
+      function (callback) {
+        request(url(username, password)).put('/' + makeDocName())
+          .send({'hello': 'world'})
+          .end(function(err, res) {
+            callback(err, [res]); // args[0]
+          });
+      },
+
+      function (args, callback) {
+        // Step2: invoke _changes: doc1@rev1 seen. save sequence to seq1
+        request(url(username, password)).get('/_changes')
+          .end(function(err, res) {
+            args.push(res);
+            callback(err, args); // args[1]
+          });
+      },
+
+      function (args, callback) {
+        // Step 3: update doc1
+        var path = '/' + args[0].body.id;
+        request(url(username, password)).post(path)
+          .send({'new': 'body'})
+          .end(function(err, res) {
+            args.push(res);
+            callback(err, args); // args[2] <-- new rev
+          });
+      },
+
+      function(args, callback) {
+        // Step 4: invoke _changes: doc1@rev1, doc1@rev2 (args[2]) seen
+        request(url(username, password)).get('/_changes')
+          .end(function(err, res) {
+            args.push(res);
+            callback(err, args); // args[3]
+          });
+      },
+
+      function(args, callback) {
+        var row = _.findWhere(args[1].body.results, {id: args[0].body.id});
+        if (row) {
+          request(url(username, password)).get('/_changes?since='+row.seq)
+            .end(function(err, res) {
+              args.push(res);
+              callback(err, args); // args[4]
+            }
+          );
+        } else {
+          callback(new Error('Failed to locate expected id in changes'), args);
+        }
+      }
+    ],
+
+    function (err, args) {
+      if (err) {
+        console.error(err);
+        done();
+        return;
+      }
+
+      // assert.ok(args[4].body.results.length === 1);
+      var row = _.findWhere(args[4].body.results, {id: args[0].body.id});
+      assert.ok(row);
+      assert.ok(row.changes[0].rev === args[2].body.rev);
+
+      done();
+    }
+
+  );});
+
+  it('check _revs_diff', function(done) {
+    this.timeout(150000);
+    var urlstr = url(username, password);
+    var path = '/' + makeDocName();
+
+    async.series([
+      function(callback) {
+        request(urlstr).put(path)
+          .send({'hello': 'world'})
+          .end(function(err, res) {
+            callback(err, res);
+          });
+      },
+
+      function(callback) {
+        request(urlstr).post(path)
+          .send({'goodbye': 'world'})
+          .end(function(err, res) {
+            callback(err, res);
+          });
+      },
+    ],
+
+    function (err, results) {
+      if (err) {
+        console.error(err);
+        done();
+        return;
+      }
+
+      var body = {};
+      var fakeid = makeDocName();
+      var fakerev = '1-ff55aa6633bbddaa765';
+      body[results[0].body.id] = [results[0].body.rev, results[1].body.rev];
+      body[fakeid] = [fakerev];
+      request(urlstr).post('/_revs_diff')
+        .send(body)
+        .end(function (err, res) {
+          if (err) {
+            console.error(err);
+          }
+
+          // We expect the result to have a single id: fakeid with a
+          // single missing rev: fakerev.
+
+          // id present
+          assert.ok(_.has(res.body, fakeid));
+
+          // single
+          assert.ok(_.keys(res.body).length === 1);
+
+          // rev present
+          assert.ok(_.indexOf(res.body[fakeid].missing, fakerev) !== -1);
+
+          // single
+          assert.ok(res.body[fakeid].missing.length === 1);
+
+          done();
+        }
+      );
+    }
+  );
+});
+});
+
 function makeDocName() {
   var doc = 'test_doc_'+new Date().getTime();
   return doc;
-  
 }
