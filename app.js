@@ -9,18 +9,13 @@ var async = require('async');
 var init = require('./lib/init');
 var events = require('events');
 var ee = new events.EventEmitter();
-var url = require('url');
 var morgan = require('morgan');
 var fs = require('fs');
 
 // Required environment variables
 var env = require('./lib/env').getCredentials();
 
-var cloudant = new Cloudant({
-  account: env.account,
-  key: env.key || env.username,
-  password: env.password
-});
+var cloudant = new Cloudant(env.couchHost);
 
 var dbName = app.dbName = env.databaseName;
 app.db = cloudant.db.use(dbName);
@@ -28,10 +23,7 @@ app.metaKey = 'com.cloudant.meta';
 app.events = ee;
 app.cloudant = cloudant;
 
-app.serverURL = url.format({
-  protocol: 'https',
-  hostname: env.account + '.cloudant.com',
-});
+app.serverURL = env.couchHost;
 
 // Set up the logging directory
 var logDirectory = __dirname + '/logs';
