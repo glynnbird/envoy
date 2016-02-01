@@ -37,13 +37,14 @@
 // update doc1 to be owned by baz
 // invoke _changes: doc2@rev1, doc3@rev1 seen
 
-var util = require('util');
-var app = require('../app');
-var assert = require('assert');
-var request = require('supertest');
-var urllib = require('url');
-var async = require('async');
-var _ = require('underscore');
+var util = require('util'),
+  app = require('../app'),
+  auth = require('../lib/auth'),
+  assert = require('assert'),
+  request = require('supertest'),
+  urllib = require('url'),
+  async = require('async'),
+  _ = require('underscore');
 
 before(function(done) {
   this.timeout(15000);
@@ -53,12 +54,10 @@ before(function(done) {
   });
 });
 
-// Required environment variables
-var port = parseInt(process.env.PORT || '8080', 10);
-
-var username = 'foo';
-var password = 'bar';
-var badPassword = 'baz';
+var port = parseInt(process.env.PORT || '8080', 10),
+  username = 'foo',
+  password = auth.sha1(username),
+  badPassword = 'baz';
 
 function url(user, password) {
   return urllib.format({
