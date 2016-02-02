@@ -1,9 +1,11 @@
-var env = require('../lib/env.js');
-var assert = require('assert');
+var env = require('../lib/env.js'),
+  assert = require('assert'),
+  _ = require('underscore');
 
 describe('environment variable tests - Bluemix mode', function() {
-  
+  var originalEnv;
   before(function(done) {
+    originalEnv = _.clone(process.env);
     process.env.VCAP_SERVICES = '{"cloudantNoSQLDB":[{"name":"cloudant","label":"cloudantNoSQLDB","plan":"Shared","credentials":{"username":"theusername","password":"thepassword","host":"theusername.cloudant.com","port":443,"url":"https://theusername:thepassword@thehost.cloudant.com"}}]}'
     process.env.PORT = '8080';
     process.env.MBAAS_DATABASE_NAME = 'mydb';
@@ -13,9 +15,7 @@ describe('environment variable tests - Bluemix mode', function() {
   // parses VCAP_SERVICES successfully
   it('parse VCAP_SERVICES', function(done) {
     var e = env.getCredentials();
-    assert.equal(e.account, 'theusername');
-    assert.equal(e.password, 'thepassword');
-    assert.equal(e.username, 'theusername');
+    assert.equal(e.couchHost, 'https://theusername:thepassword@theusername.cloudant.com');
     assert.equal(e.databaseName, 'mydb');
     assert.equal(e.port, 8080);
     done();
@@ -66,7 +66,7 @@ describe('environment variable tests - Bluemix mode', function() {
   });
   
   after(function(done) {
-    delete process.env.VCAP_SERVICES;
+    process.env = originalEnv;
     done();
   });
   
@@ -74,10 +74,12 @@ describe('environment variable tests - Bluemix mode', function() {
 
 describe('environment variable tests - Piecemeal mode', function() {
   
+  var originalEnv;
+
   before(function(done) {
-    process.env.ACCOUNT = 'thehost';
-    process.env.API_PASSWORD = 'thepassword';
-    process.env.API_KEY = 'thekey';
+    // backup current env variables
+    originalEnv = _.clone(process.env);
+    process.env.COUCH_HOST = 'https://thehost';
     process.env.PORT = '8080';
     process.env.MBAAS_DATABASE_NAME = 'mydb';
     done();
@@ -87,47 +89,17 @@ describe('environment variable tests - Piecemeal mode', function() {
   // parses VCAP_SERVICES successfully
   it('piecemeal mode successful', function(done) {
     var e = env.getCredentials();
-    assert.equal(e.account, 'thehost');
-    assert.equal(e.password, 'thepassword');
-    assert.equal(e.key, 'thekey');
+    assert.equal(e.couchHost, 'https://thehost');
     assert.equal(e.port, 8080);
     assert.equal(e.databaseName, 'mydb');
     done();
   });
   
-  // try missing ACCOUNT value
+  // try missing COUCH_HOST value
   it('throw exception when missing ACCOUNT', function(done) {
-    delete process.env.ACCOUNT;;
-    process.env.API_PASSWORD = 'thepassword';
-    process.env.API_KEY = 'thekey';
+    delete process.env.COUCH_HOST;
     process.env.PORT = '8080';
     process.env.MBAAS_DATABASE_NAME = 'mydb';
-    assert.throws( function() {
-      var e = env.getCredentials();
-    });
-    done();
-  });
-  
-  // try missing API_PASSWORD value
-  it('throw exception when missing API_PASSWORD', function(done) {
-    process.env.ACCOUNT = 'thehost';
-    process.env.API_KEY = 'thekey';
-    process.env.PORT = '8080';
-    process.env.MBAAS_DATABASE_NAME = 'mydb';
-    delete process.env.API_PASSWORD;
-    assert.throws( function() {
-      var e = env.getCredentials();
-    });
-    done();
-  });
-  
-  // try missing API_KEY value
-  it('throw exception when missing API_KEY', function(done) {
-    process.env.ACCOUNT = 'thehost';
-    process.env.API_PASSWORD = 'thepassword';
-    process.env.PORT = '8080';
-    process.env.MBAAS_DATABASE_NAME = 'mydb';
-    delete process.env.API_KEY;
     assert.throws( function() {
       var e = env.getCredentials();
     });
@@ -136,9 +108,7 @@ describe('environment variable tests - Piecemeal mode', function() {
   
   // try missing PORT value
   it('throw exception when missing PORT', function(done) {
-    process.env.ACCOUNT = 'thehost';
-    process.env.API_PASSWORD = 'thepassword';
-    process.env.API_KEY = 'thekey';
+    process.env.COUCH_HOST = 'https://thehost';
     process.env.MBAAS_DATABASE_NAME = 'mydb';
     delete process.env.PORT;
     assert.throws( function() {
@@ -149,23 +119,18 @@ describe('environment variable tests - Piecemeal mode', function() {
   
   // try invalid PORT value
   it('throw exception when non-numeric PORT', function(done) {
-    process.env.ACCOUNT = 'thehost';
-    process.env.API_PASSWORD = 'thepassword';
-    process.env.API_KEY = 'thekey';
+    process.env.COUCH_HOST = 'https://thehost';
     process.env.MBAAS_DATABASE_NAME = 'mydb';
-    process.env.port = "49a";
-    assert.throws( function() {
+    process.env.PORT = '49a';
+    assert.throws(function() {
       var e = env.getCredentials();
     });
     done();
   });
   
   after(function(done) {
-    delete process.env.VCAP_SERVICES;
-    delete process.env.ACCOUNT;
-    delete process.env.API_PASSWORD;
-    delete process.env.API_KEY;
-    delete process.env.PORT;
+    // restore env variables as they were before the test
+    process.env = originalEnv;
     done();
   });
   

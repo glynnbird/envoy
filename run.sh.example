@@ -1,8 +1,6 @@
 #!/bin/bash
 
-export ACCOUNT='example'
-export API_KEY='sdlfksdfkjskdfjsdklf'
-export API_PASSWORD='sdkfsldfjsd98fs980dfs09'
+export COUCH_HOST='https://sdlfksdfkjskdfjsdklf:sdkfsldfjsd98fs980dfs09@example.cloudant.com'
 export PORT=3000
 export MBAAS_DATABASE_NAME='mbaas'
 
