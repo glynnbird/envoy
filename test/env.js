@@ -1,9 +1,11 @@
-var env = require('../lib/env.js');
-var assert = require('assert');
+var env = require('../lib/env.js'),
+  assert = require('assert'),
+  _ = require('underscore');
 
 describe('environment variable tests - Bluemix mode', function() {
-  
+  var originalEnv;
   before(function(done) {
+    originalEnv = _.clone(process.env);
     process.env.VCAP_SERVICES = '{"cloudantNoSQLDB":[{"name":"cloudant","label":"cloudantNoSQLDB","plan":"Shared","credentials":{"username":"theusername","password":"thepassword","host":"theusername.cloudant.com","port":443,"url":"https://theusername:thepassword@thehost.cloudant.com"}}]}'
     process.env.PORT = '8080';
     process.env.MBAAS_DATABASE_NAME = 'mydb';
@@ -64,7 +66,7 @@ describe('environment variable tests - Bluemix mode', function() {
   });
   
   after(function(done) {
-    delete process.env.VCAP_SERVICES;
+    process.env = originalEnv;
     done();
   });
   
@@ -72,7 +74,11 @@ describe('environment variable tests - Bluemix mode', function() {
 
 describe('environment variable tests - Piecemeal mode', function() {
   
+  var originalEnv;
+
   before(function(done) {
+    // backup current env variables
+    originalEnv = _.clone(process.env);
     process.env.COUCH_HOST = 'https://thehost';
     process.env.PORT = '8080';
     process.env.MBAAS_DATABASE_NAME = 'mydb';
@@ -115,17 +121,16 @@ describe('environment variable tests - Piecemeal mode', function() {
   it('throw exception when non-numeric PORT', function(done) {
     process.env.COUCH_HOST = 'https://thehost';
     process.env.MBAAS_DATABASE_NAME = 'mydb';
-    process.env.port = "49a";
-    assert.throws( function() {
+    process.env.PORT = '49a';
+    assert.throws(function() {
       var e = env.getCredentials();
     });
     done();
   });
   
   after(function(done) {
-    delete process.env.VCAP_SERVICES;
-    delete process.env.COUCH_HOST;
-    delete process.env.PORT;
+    // restore env variables as they were before the test
+    process.env = originalEnv;
     done();
   });
   
