@@ -1,6 +1,7 @@
 var utils = require('../lib/utils'),
   app = require('../app'),
   assert = require('assert'),
+  auth = require('../lib/auth'),
   request = require('supertest'),
   urllib = require('url'),
   async = require('async'),
@@ -12,7 +13,7 @@ var utils = require('../lib/utils'),
 // Required environment variables
 var port = parseInt(process.env.PORT || '8080', 10),
   username = 'foo',
-  password = 'bar';
+  password = auth.sha1(username);
 
 function url(user, password) {
   return urllib.format({
