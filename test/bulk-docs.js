@@ -17,6 +17,11 @@ describe('bulk_docs', function () {
       _.each(response, function (row) {
         assert.equal(_.has(row, 'error'), false);
       });
+
+      // ensure we can retrieve what we inserted
+      return remote.get(response[0].id);
+    }).then(function (doc) {
+      assert(doc._id);
     });
   });
 
@@ -35,6 +40,11 @@ describe('bulk_docs', function () {
       _.each(response, function (row) {
         assert.equal(_.has(row, 'error'), false);
       });
+
+      // ensure we can retrieve what we inserted
+      return remote.get(docs[0]._id);
+    }).then(function (doc) {
+      assert(doc._id);
     });
   });
 
