@@ -43,4 +43,26 @@ describe('test single user sync', function () {
       });
     });
   });
+
+  it('pull replication', function () {
+    this.timeout(10000);
+
+    var username = 'pull_repl_test';
+    var remoteURL = testUtils.url(username, auth.sha1(username));
+
+    var local = new PouchDB(dbs.local);
+    var remote = new PouchDB(remoteURL);
+    var docs = testUtils.makeDocs(5);
+
+    return remote.bulkDocs(docs).then(function (response) {
+      local.replicate.from(remote)
+        .on('complete', function (info) {
+          // Verify that all documents reported as pushed are present
+          // on the remote side.
+          local.allDocs().then(function(response) {
+            assert.equal(response.total_rows, docs.length, response);
+          });
+        });
+    });
+  });
 });
