@@ -2,7 +2,7 @@
 
 var auth = require('../lib/auth');
 
-process.env.MBAAS_DATABASE_NAME = process.env.MBAAS_DATABASE_NAME +
+process.env.MBAAS_DATABASE_NAME = (process.env.MBAAS_DATABASE_NAME || "mbaas") +
 	(new Date().getTime());
 
 var testsDir = process.env.TESTS_DIR || './tmp';
