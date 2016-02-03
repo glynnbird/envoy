@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var auth = require('../lib/auth');
 
@@ -30,7 +30,3 @@ before(function(done) {
 global.testUtils = require('./utils.js');
 global.username = 'foo';
 global.password = auth.sha1(global.username);
-
-
-
-
