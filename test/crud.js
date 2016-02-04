@@ -1,8 +1,7 @@
-var util = require('util');
-var assert = require('assert');
-var request = require('supertest');
-var async = require('async');
-var _ = require('underscore');
+var util = require('util'),
+  assert = require('assert'),
+  request = require('supertest'),
+  async = require('async');
 
 describe('CRUD tests', function() {
   var badPassword = 'baz';

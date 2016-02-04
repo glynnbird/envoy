@@ -1,6 +1,5 @@
 var assert = require('assert'),
   auth = require('../lib/auth'),
-  _ = require('underscore'),
   PouchDB = require('pouchdb'),
   chance = require('chance')();
 
@@ -14,8 +13,8 @@ describe('bulk_docs', function () {
 
     return remote.bulkDocs(docs).then(function (response) {
       assert.equal(response.length, docCount, response);
-      _.each(response, function (row) {
-        assert.equal(_.has(row, 'error'), false);
+      response.forEach(function (row) {
+        assert(!row.error);
       });
 
       // ensure we can retrieve what we inserted
@@ -37,8 +36,8 @@ describe('bulk_docs', function () {
 
     return remote.bulkDocs(docs).then(function (response) {
       assert.equal(response.length, docCount, response);
-      _.each(response, function (row) {
-        assert.equal(_.has(row, 'error'), false);
+      response.forEach(function (row) {
+        assert(!row.error);
       });
 
       // ensure we can retrieve what we inserted
@@ -59,8 +58,8 @@ describe('bulk_docs', function () {
 
     return remote.bulkDocs(docs).then(function (response) {
       assert.equal(response.length, docCount, response);
-      _.each(response, function (row) {
-        assert.equal(_.has(row, 'error'), false);
+      response.forEach(function (row) {
+        assert(!row.error);
       });
     });
   });
@@ -79,11 +78,11 @@ describe('bulk_docs', function () {
       docs2[0]._id = response[0].id;
       docs2[0]._rev = response[0].rev;
       return remote2.bulkDocs(docs2).then(function (response) {
-        _.each(response, function (row) {
+        response.forEach(function (row) {
           if (row.id === docs2[0]._id) {
-            assert.equal(_.has(row, 'error'), true);
+            assert(row.error);
           } else {
-            assert.equal(_.has(row, 'error'), false);
+            assert(!row.error);
           }
         });
       });

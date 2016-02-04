@@ -67,4 +67,8 @@ testUtils.makeDocName = function() {
   return 'test_doc_' + new Date().getTime();
 };
 
+testUtils.d = function (msg, obj) {
+  console.log(msg, JSON.stringify(obj, null, 2));
+};
+
 module.exports = testUtils;
