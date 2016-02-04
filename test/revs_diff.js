@@ -1,9 +1,8 @@
-var util = require('util');
-var assert = require('assert');
-var request = require('supertest');
-var urllib = require('url');
-var async = require('async');
-var _ = require('underscore');
+var util = require('util'),
+  assert = require('assert'),
+  request = require('supertest'),
+  urllib = require('url'),
+  async = require('async');
 
 describe('test _revs_diff', function() {
 
@@ -53,16 +52,15 @@ describe('test _revs_diff', function() {
           // single missing rev: fakerev.
 
           // id present
-          assert.ok(_.has(res.body, fakeid));
+          assert(res.body[fakeid]);
 
           // single
-          assert.ok(_.keys(res.body).length === 1);
+          assert.equal(Object.keys(res.body).length, 1,
+            'Revsdiff listing should have a single entry');
 
           // rev present
-          assert.ok(_.indexOf(res.body[fakeid].missing, fakerev) !== -1);
-
-          // single
-          assert.ok(res.body[fakeid].missing.length === 1);
+          assert.equal(res.body[fakeid].missing.indexOf(fakerev), 0,
+            'Revision should be present');
 
           done();
         }
