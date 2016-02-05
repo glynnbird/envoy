@@ -2,7 +2,8 @@
 
 var auth = require('../lib/auth');
 
-process.env.MBAAS_DATABASE_NAME = (process.env.MBAAS_DATABASE_NAME || "mbaas") +
+process.env.MBAAS_DATABASE_NAME = 
+  (process.env.MBAAS_DATABASE_NAME || 'mbaas') +
 	(new Date().getTime());
 
 var testsDir = process.env.TESTS_DIR || './tmp';
@@ -25,7 +26,6 @@ before(function(done) {
     done();
   });
 });
-
 
 global.testUtils = require('./utils.js');
 global.username = 'foo';

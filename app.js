@@ -1,23 +1,23 @@
 'use strict';
 
-var app = module.exports = require('express')();
-var Cloudant = require('cloudant');
-var bodyParser = require('body-parser');
-var router = require('./lib/routes/index');
-var utils = require('./lib/utils');
-var async = require('async');
-var init = require('./lib/init');
-var events = require('events');
-var ee = new events.EventEmitter();
-var morgan = require('morgan');
-var fs = require('fs');
+var app = module.exports = require('express')(),
+  Cloudant = require('cloudant'),
+  bodyParser = require('body-parser'),
+  router = require('./lib/routes/index'),
+  async = require('async'),
+  init = require('./lib/init'),
+  events = require('events'),
+  ee = new events.EventEmitter(),
+  morgan = require('morgan'),
+  fs = require('fs'),
+  cors = require('cors');
 
 // Required environment variables
 var env = require('./lib/env').getCredentials();
 
-var cloudant = new Cloudant(env.couchHost);
+var cloudant = new Cloudant(env.couchHost),
+  dbName = app.dbName = env.databaseName;
 
-var dbName = app.dbName = env.databaseName;
 app.db = cloudant.db.use(dbName);
 app.metaKey = 'com.cloudant.meta';
 app.events = ee;
@@ -34,6 +34,8 @@ if (!fs.existsSync(logDirectory)) {
 // Create a write stream (in append mode)
 var accessLogStream =
   fs.createWriteStream(logDirectory + '/access.log', {flags: 'a'});
+
+app.options('*', cors()); // include before other routes
 
 // Setup the logger
 app.use(morgan('dev', {stream: accessLogStream}));
@@ -52,7 +54,7 @@ function main() {
   });
 
   // Error handlers
-  app.use(function(err, req, res, next) {
+  app.use(function(err, req, res) {
     console.error(err.stack);
     res.status(err.statusCode || 500).send('Something broke!');
   });
