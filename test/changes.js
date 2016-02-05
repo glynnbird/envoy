@@ -1,8 +1,8 @@
 'use strict';
+/* globals testUtils */
 
 var assert = require('assert'),
   auth = require('../lib/auth'),
-  testUtils = require('./utils'),
   PouchDB = require('pouchdb');
 
 describe('changes', function () {
