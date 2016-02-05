@@ -1,3 +1,6 @@
+'use strict';
+/* globals testUtils */
+
 var assert = require('assert'),
   auth = require('../lib/auth'),
   chance = require('chance')(),
@@ -52,7 +55,7 @@ describe('revsDiff', function () {
       fakeid = chance.guid(),
       fakerev = '1-45cecfc5e2d5ea3e8b254f21d990fa7a';
 
-    return remote2.bulkDocs(docs2).then(function (response) {
+    return remote2.bulkDocs(docs2).then(function () {
       return remote.bulkDocs(docs);
     }).then(function (response) {
       var newDoc = testUtils.makeDocs(1)[0];

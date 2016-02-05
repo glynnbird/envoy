@@ -1,3 +1,6 @@
+'use strict';
+/* globals testUtils */
+
 var assert = require('assert'),
   auth = require('../lib/auth'),
   PouchDB = require('pouchdb'),
