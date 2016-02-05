@@ -11,6 +11,7 @@ var events = require('events');
 var ee = new events.EventEmitter();
 var morgan = require('morgan');
 var fs = require('fs');
+var cors = require('cors');
 
 // Required environment variables
 var env = require('./lib/env').getCredentials();
@@ -34,6 +35,8 @@ if (!fs.existsSync(logDirectory)) {
 // Create a write stream (in append mode)
 var accessLogStream =
   fs.createWriteStream(logDirectory + '/access.log', {flags: 'a'});
+
+app.options('*', cors()); // include before other routes
 
 // Setup the logger
 app.use(morgan('dev', {stream: accessLogStream}));
