@@ -1,3 +1,5 @@
+'use strict';
+
 var assert = require('assert'),
   env = require('../lib/env.js'),
   assert = require('assert');
@@ -6,7 +8,11 @@ describe('environment variable tests - Bluemix mode', function() {
   var originalEnv;
   before(function(done) {
     originalEnv = Object.assign({}, process.env);
-    process.env.VCAP_SERVICES = '{"cloudantNoSQLDB":[{"name":"cloudant","label":"cloudantNoSQLDB","plan":"Shared","credentials":{"username":"theusername","password":"thepassword","host":"theusername.cloudant.com","port":443,"url":"https://theusername:thepassword@thehost.cloudant.com"}}]}'
+    process.env.VCAP_SERVICES = '{"cloudantNoSQLDB":[{"name":"cloudant",'+
+      '"label":"cloudantNoSQLDB","plan":"Shared","credentials":{"username":'+
+      '"theusername","password":"thepassword","host":"theusername.'+
+      'cloudant.com","port":443,"url":"https://theusername:thepassword'+
+      '@thehost.cloudant.com"}}]}';
     process.env.PORT = '8080';
     process.env.MBAAS_DATABASE_NAME = 'mydb';
     done();
@@ -15,7 +21,8 @@ describe('environment variable tests - Bluemix mode', function() {
   // parses VCAP_SERVICES successfully
   it('parse VCAP_SERVICES', function(done) {
     var e = env.getCredentials();
-    assert.equal(e.couchHost, 'https://theusername:thepassword@theusername.cloudant.com');
+    assert.equal(e.couchHost, 
+      'https://theusername:thepassword@theusername.cloudant.com');
     assert.equal(e.databaseName, 'mydb');
     assert.equal(e.port, 8080);
     done();
@@ -25,7 +32,7 @@ describe('environment variable tests - Bluemix mode', function() {
   it('missing MBAAS_DATABASE_NAME', function(done) {
     delete process.env.MBAAS_DATABASE_NAME;
     assert.throws( function() {
-      var e = env.getCredentials();
+      env.getCredentials();
     });
 
     done();
@@ -37,7 +44,7 @@ describe('environment variable tests - Bluemix mode', function() {
     process.env.VCAP_SERVICES = '{"badjson}';
 
     assert.throws( function() {
-      var e = env.getCredentials();
+      env.getCredentials();
     });
 
     done();
@@ -48,7 +55,7 @@ describe('environment variable tests - Bluemix mode', function() {
     process.env.MBAAS_DATABASE_NAME = 'mydb';
     process.env.VCAP_SERVICES = '{"someservice":[]}';
     assert.throws( function() {
-      var e = env.getCredentials();
+      env.getCredentials();
     });
 
     done();
@@ -59,7 +66,7 @@ describe('environment variable tests - Bluemix mode', function() {
     process.env.MBAAS_DATABASE_NAME = 'mydb';
     process.env.VCAP_SERVICES = '{"cloudantNoSQLDB":[]}';
     assert.throws( function() {
-      var e = env.getCredentials();
+      env.getCredentials();
     });
 
     done();
@@ -101,7 +108,7 @@ describe('environment variable tests - Piecemeal mode', function() {
     process.env.PORT = '8080';
     process.env.MBAAS_DATABASE_NAME = 'mydb';
     assert.throws( function() {
-      var e = env.getCredentials();
+      env.getCredentials();
     });
     done();
   });
@@ -112,7 +119,7 @@ describe('environment variable tests - Piecemeal mode', function() {
     process.env.MBAAS_DATABASE_NAME = 'mydb';
     delete process.env.PORT;
     assert.throws( function() {
-      var e = env.getCredentials();
+      env.getCredentials();
     });
     done();
   });
@@ -123,7 +130,7 @@ describe('environment variable tests - Piecemeal mode', function() {
     process.env.MBAAS_DATABASE_NAME = 'mydb';
     process.env.PORT = '49a';
     assert.throws(function() {
-      var e = env.getCredentials();
+      env.getCredentials();
     });
     done();
   });

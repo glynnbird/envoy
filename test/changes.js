@@ -1,3 +1,6 @@
+'use strict';
+/* globals testUtils */
+
 var assert = require('assert'),
   auth = require('../lib/auth'),
   PouchDB = require('pouchdb');
@@ -12,7 +15,7 @@ describe('changes', function () {
       seq1 = '',
       id ,rev;
 
-    return remote.bulkDocs(docs).then(function (response) {
+    return remote.bulkDocs(docs).then(function () {
       return remote.changes();
     }).then(function (response) {
       seq1 = response.last_seq;

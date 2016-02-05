@@ -1,24 +1,19 @@
-/* global PouchDB */
-/* jshint -W079 */
 'use strict';
 
 var chance = require('chance')(),
-  urllib = require('url'),
-  _ = require('underscore'),
+  url = require('url'),
   PouchDB = require('pouchdb'),
-  env = require('../lib/env.js'),
-  request = require('request'),
-  init = require('../lib/init.js');
+  env = require('../lib/env.js');
 
 var testUtils = {};
 
 // Delete specified databases
 testUtils.cleanup = function (dbs, done) {
-  var e = env.getCredentials();
+  env.getCredentials();
 
   var num = dbs.length;
 
-  var finished = function(err, resp) {
+  var finished = function() {
     if (--num === 0) {
       done();
     }
@@ -29,17 +24,15 @@ testUtils.cleanup = function (dbs, done) {
   });
 };
 
-
 testUtils.url = function(user, password) {
   var e = env.getCredentials();
-  return urllib.format({
+  return url.format({
     protocol: 'http',
     auth: user + ':' + password,
     host: e.url,
     pathname: 'mbaas'
   });
 };
-
 
 testUtils.makeDocs = function(count) {
   var docs = [];

@@ -1,5 +1,10 @@
-var util = require('util'),
-  assert = require('assert'),
+'use strict';
+
+/* globals testUtils */
+/* globals username */
+/* globals password */
+
+var assert = require('assert'),
   request = require('supertest'),
   async = require('async');
 
@@ -38,7 +43,7 @@ describe('CRUD tests', function() {
       }
     };
     request(testUtils.url(username, password)).put(path)
-      .send({'foo':'bar'})
+      .send(body)
       .end(function(err, res){
         if (err) {
           throw err;
@@ -101,7 +106,8 @@ describe('CRUD tests', function() {
       },
       function(next) {
         // update doc
-        request(testUtils.url(username, password)).post(path)
+        request(testUtils.url(username, password))
+          .post(path)
           .send(body2)
           .end(function(err, res) {
             assert.equal(res.statusCode, 200);
@@ -173,7 +179,8 @@ describe('CRUD tests', function() {
       },
       function(next) {
         // delete doc
-        request(testUtils.url(username, password)).del(path+'?rev='+rev)
+        request(testUtils.url(username, password))
+          .del(path+'?rev='+rev)
           .send()
           .end(function(err, res) {
             assert.equal(res.statusCode, 200);
@@ -186,6 +193,7 @@ describe('CRUD tests', function() {
   it('delete doc unsuccessfully, incorrect creds', function(done) {
     var path = '/' + testUtils.makeDocName();
     var body = {'hello': 'world'};
+    var rev;
 
     async.series([
       function(next) {
@@ -201,7 +209,8 @@ describe('CRUD tests', function() {
       },
       function(next) {
         // delete doc
-        request(testUtils.url(username, badPassword)).del(path+'?rev='+rev)
+        request(testUtils.url(username, badPassword))
+          .del(path+'?rev='+rev)
           .send()
           .end(function(err, res) {
             assert.equal(res.statusCode, 401);

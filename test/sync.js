@@ -1,7 +1,9 @@
-var PouchDB = require('pouchdb');
-var assert = require('assert');
-var _ = require('underscore');
-var auth = require('../lib/auth');
+'use strict';
+/* globals testUtils */
+
+var PouchDB = require('pouchdb'),
+  assert = require('assert'),
+  auth = require('../lib/auth');
 
 // Generate a bunch of documents, and store those in a local
 // PouchDB. Kick off a push replication, and then query remote
@@ -29,7 +31,6 @@ describe('test single user sync', function () {
 
     return remote.allDocs()
       .then(function (response) {
-        /*jshint camelcase: false */
         assert.equal(response.total_rows, 0);
 
         return local.bulkDocs(docs);
