@@ -12,12 +12,15 @@ describe('changes', function () {
     var docs = testUtils.makeDocs(docCount),
       remoteURL = testUtils.url('bob', auth.sha1('bob')),
       remote = new PouchDB(remoteURL),
+      // remote = new PouchDB('testdb'),
       seq1 = '',
       id ,rev;
 
     return remote.bulkDocs(docs).then(function () {
       return remote.changes();
     }).then(function (response) {
+      assert(response.results);
+      assert(response.results.length >= 1);
       seq1 = response.last_seq;
       // Update a document
       var newDoc = testUtils.makeDocs(1)[0];
@@ -35,6 +38,8 @@ describe('changes', function () {
         'ID of document should be the one that was updated');
       assert.equal(response.results[0].changes[0].rev, rev,
         'Rev of document should be the one that was updated');
+    }).catch(function(error) {
+      console.log(error);
     });
   });
 });
