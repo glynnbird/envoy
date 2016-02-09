@@ -1,5 +1,5 @@
 function (doc) {
-  if (doc['com.cloudant.meta']) {
+  if (doc['com.cloudant.meta'] && doc['com.cloudant.meta'].auth) {
     if (doc['com.cloudant.meta'].auth.users) {
       for (var i in doc['com.cloudant.meta'].auth.users) {
         emit(doc['com.cloudant.meta'].auth.users[i], 1);
