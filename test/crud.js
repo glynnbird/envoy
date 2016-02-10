@@ -160,7 +160,7 @@ describe('CRUD tests', function() {
   });
 
   it('delete doc successfully', function(done) {
-
+    this.timeout(10000);
     var path = '/' + testUtils.makeDocName();
     var body = {'hello': 'world'};
     var rev;
