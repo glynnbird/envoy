@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const crypto = require('crypto');
+
+function sha1(string) {
+  return crypto.createHash('sha1').update(string).digest('hex');
+}
+
+const host = process.env.HOST || 'localhost',
+  port = process.env.PORT || '8001';
+
+function makeURL(host, port, username, path) {
+  return `http://${makeCreds(username)}@${host}:${port}/mbaas${path}`;
+}
+
+function makeCreds(user) {
+  return `${user}:${sha1(user)}`;
+}
+
+
+process.argv.slice(2).forEach((user) => {
+  console.log(makeURL(host, port, user, ''));
+});

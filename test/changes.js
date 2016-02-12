@@ -12,13 +12,13 @@ describe('changes', function () {
     var docs = testUtils.makeDocs(docCount),
       remoteURL = testUtils.uniqueUserUrl(),
       remote = new PouchDB(remoteURL),
-      // remote = new PouchDB('testdb'),
       seq1 = '',
       id ,rev;
 
     return remote.bulkDocs(docs).then(function () {
       return remote.changes();
     }).then(function (response) {
+      // testUtils.d('FIRST', response);
       assert(response.results);
       assert(response.results.length >= 1);
       seq1 = response.last_seq;
@@ -32,6 +32,7 @@ describe('changes', function () {
       rev = response.rev;
       return remote.changes({since: seq1});
     }).then(function (response) {
+      // testUtils.d('FINAL', response);
       assert.equal(response.results.length, 1,
         'Changes feed should contain single entry');
       assert.equal(response.results[0].id, id,

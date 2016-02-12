@@ -21,6 +21,7 @@ var app = require('../app');
 
 // ensure server is started before running any tests
 before(function(done) {
+  this.timeout(10000);
   app.events.on('listening', function() {
     console.log('[OK]  Server is up');
     done();
