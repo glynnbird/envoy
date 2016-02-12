@@ -11,7 +11,7 @@ describe('bulk_docs', function () {
     this.timeout(10000);
     var docCount = 5;
     var docs = testUtils.makeDocs(docCount),
-      remoteURL = testUtils.url('bob', auth.sha1('bob')),
+      remoteURL = testUtils.uniqueUserUrl(),
       remote = new PouchDB(remoteURL);
 
     return remote.bulkDocs(docs).then(function (response) {
@@ -31,7 +31,7 @@ describe('bulk_docs', function () {
     this.timeout(10000);
     var docCount = 2;
     var docs = testUtils.makeDocs(docCount),
-      remoteURL = testUtils.url('bob', auth.sha1('bob')),
+      remoteURL = testUtils.uniqueUserUrl(),
       remote = new PouchDB(remoteURL);
 
     docs[0]._id = chance.guid();
@@ -54,7 +54,7 @@ describe('bulk_docs', function () {
     this.timeout(10000);
     var docCount = 2;
     var docs = testUtils.makeDocs(docCount),
-      remoteURL = testUtils.url('bob', auth.sha1('bob')),
+      remoteURL = testUtils.uniqueUserUrl(),
       remote = new PouchDB(remoteURL);
 
     docs[0]._id = chance.guid();
@@ -72,9 +72,9 @@ describe('bulk_docs', function () {
     var docCount = 2;
     var docs = testUtils.makeDocs(docCount),
       docs2 = testUtils.makeDocs(docCount),
-      remoteURL = testUtils.url('bob', auth.sha1('bob')),
+      remoteURL = testUtils.uniqueUserUrl(),
       remote = new PouchDB(remoteURL),
-      remoteURL2 = testUtils.url('frank', auth.sha1('frank')),
+      remoteURL2 = testUtils.uniqueUserUrl(),
       remote2 = new PouchDB(remoteURL2);
 
     return remote.bulkDocs(docs).then(function (response) {

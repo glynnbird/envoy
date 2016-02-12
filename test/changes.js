@@ -10,7 +10,7 @@ describe('changes', function () {
     this.timeout(10000);
     var docCount = 2;
     var docs = testUtils.makeDocs(docCount),
-      remoteURL = testUtils.url('bob', auth.sha1('bob')),
+      remoteURL = testUtils.uniqueUserUrl(),
       remote = new PouchDB(remoteURL),
       // remote = new PouchDB('testdb'),
       seq1 = '',

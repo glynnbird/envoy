@@ -3,9 +3,11 @@
 var chance = require('chance')(),
   url = require('url'),
   PouchDB = require('pouchdb'),
-  env = require('../lib/env.js');
+  env = require('../lib/env.js'),
+  auth = require('../lib/auth');
 
 var testUtils = {};
+var userCount = 0;
 
 // Delete specified databases
 testUtils.cleanup = function (dbs, done) {
@@ -33,6 +35,12 @@ testUtils.url = function(user, password) {
     pathname: 'mbaas'
   });
 };
+
+testUtils.uniqueUserUrl = function() {
+  var username = 'user' + userCount++;
+  return testUtils.url(username, auth.sha1(username));
+};
+
 
 testUtils.makeDocs = function(count) {
   var docs = [];
