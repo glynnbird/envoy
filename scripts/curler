@@ -1,0 +1,35 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const vorpal = require('vorpal')(),
+	crypto = require('crypto');
+
+function sha1(string) {
+  return crypto.createHash('sha1').update(string).digest('hex');
+}
+
+const host = process.env.HOST || 'localhost',
+  port = process.env.PORT || '8001';
+
+function makeURL(host, port, username, path) {
+  return `http://${makeCreds(username)}@${host}:${port}/mbaas${path}`;
+}
+
+function makeCreds(user) {
+  return `${user}:${sha1(user)}`;
+}
+
+var url;
+
+vorpal
+  .delimiter('curler> ')
+  .show();
+
+vorpal
+	.command('user <name>', 'set user name')
+  .action((args, callback) => {
+    url = makeURL(host, port, args.name, '');
+    console.log(url);
+    callback();
+  });
