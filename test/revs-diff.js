@@ -11,7 +11,7 @@ describe('revsDiff', function () {
     this.timeout(10000);
     var docCount = 1,
       docs = testUtils.makeDocs(docCount),
-      remoteURL = testUtils.url('bob', auth.sha1('bob')),
+      remoteURL = testUtils.uniqueUserUrl(),
       remote = new PouchDB(remoteURL),
       fakeid = chance.guid(),
       fakerev = '1-f5cecfc5e2d5ea3e8b254e21d990fa7c';
@@ -50,8 +50,8 @@ describe('revsDiff', function () {
     var docCount = 1,
       docs = testUtils.makeDocs(docCount),
       docs2 = testUtils.makeDocs(docCount),
-      remote = new PouchDB(testUtils.url('bob', auth.sha1('bob'))),
-      remote2 = new PouchDB(testUtils.url('frank', auth.sha1('frank'))),
+      remote = new PouchDB(testUtils.uniqueUserUrl()),
+      remote2 = new PouchDB(testUtils.uniqueUserUrl()),
       fakeid = chance.guid(),
       fakerev = '1-45cecfc5e2d5ea3e8b254f21d990fa7a';
 
