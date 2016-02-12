@@ -65,7 +65,7 @@ describe('test single user sync', function () {
       });
   });
 
-  it.skip('multi-client replication', function () {
+  it('multi-client replication', function () {
     this.timeout(10000);
 
     var username = 'multi_repl_test';
