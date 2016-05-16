@@ -50,15 +50,15 @@ The Envoy server should not present an undue load on the underlying Cloudant clu
 Here's what this currently does:
 
 1. Implement a per-document access rights model and the corresponding CRUD API calls
+2. Ensure that the replication-specific end points respect the access rights model
 
 Here's what's currently outstanding:
 
 1. Extend Query to always implicitly search based on user
 2. Implement a new set of API end points to allow the registration of a new user
-3. Ensure that the replication-specific end points respect the access rights model
-4. Implement auth against third-party authentication services
-5. Groups concept is not fully fleshed out
-6. CORS
+3. Implement auth against third-party authentication services
+4. Groups concept is not fully fleshed out
+5. CORS
 
 ## Per document access rights
 
