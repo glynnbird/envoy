@@ -1,6 +1,7 @@
 'use strict';
 
 var app = module.exports = require('express')(),
+  compression = require('compression'),
   Cloudant = require('cloudant'),
   bodyParser = require('body-parser'),
   router = require('./lib/routes/index'),
@@ -42,6 +43,9 @@ function main() {
 
   // enable cors
   app.use(cors());   
+  
+  // gzip responses
+  app.use(compression());
   
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: false }));
