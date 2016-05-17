@@ -51,6 +51,7 @@ Here's what this currently does:
 
 1. Implement a per-document access rights model and the corresponding CRUD API calls
 2. Ensure that the replication-specific end points respect the access rights model
+3. CORS
 
 Here's what's currently outstanding:
 
@@ -58,7 +59,6 @@ Here's what's currently outstanding:
 2. Implement a new set of API end points to allow the registration of a new user
 3. Implement auth against third-party authentication services
 4. Groups concept is not fully fleshed out
-5. CORS
 
 ## Per document access rights
 
