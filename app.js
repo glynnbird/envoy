@@ -10,7 +10,7 @@ var app = module.exports = require('express')(),
   ee = new events.EventEmitter(),
   morgan = require('morgan'),
   fs = require('fs'),
-  cors = require('cors');
+  cors = require('./lib/cors'); 
 
 // Required environment variables
 var env = require('./lib/env').getCredentials();
@@ -35,12 +35,14 @@ if (!fs.existsSync(logDirectory)) {
 var accessLogStream =
   fs.createWriteStream(logDirectory + '/access.log', {flags: 'a'});
 
-app.options('*', cors()); // include before other routes
-
 // Setup the logger
 app.use(morgan('dev', {stream: accessLogStream}));
 
 function main() {
+
+  // enable cors
+  app.use(cors());   
+  
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: false }));
 
