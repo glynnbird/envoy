@@ -20,7 +20,7 @@
     "basic-auth": "^1.0.3",
     "body-parser": "^1.14.2",
     "cfenv": "^1.0.3",
-    "chance": "^0.8.0",
+    "chance": "^1.0.3",
     "cloudant": "^1.4.1",
     "cors": "^2.7.1",
     "events": "^1.1.0",
@@ -30,9 +30,9 @@
     "underscore": "^1.8.3"
   },
   "devDependencies": {
-    "jshint": "2.4.0",
-    "mocha": "2.3.4",
-    "supertest": "1.1.0",
+    "jshint": "2.9.2",
+    "mocha": "2.4.5",
+    "supertest": "1.2.0",
     "pouchdb": "^5.2.1"
   }
 }
