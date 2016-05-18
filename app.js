@@ -20,7 +20,7 @@ var cloudant = new Cloudant(env.couchHost),
   dbName = app.dbName = env.databaseName;
 
 app.db = cloudant.db.use(dbName);
-app.metaKey = 'com.cloudant.meta';
+app.metaKey = 'com_cloudant_meta';
 app.events = ee;
 app.cloudant = cloudant;
 
