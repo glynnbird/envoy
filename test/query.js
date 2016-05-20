@@ -12,7 +12,6 @@ describe('query', function () {
     var docs = testUtils.makeDocs(docCount),
       remoteURL = testUtils.url('bob', auth.sha1('bob')),
       remote = new PouchDB(remoteURL);
-    console.log("remoteURL", remoteURL);
       
     // Cloudant "/db/_find"
     return remote.bulkDocs(docs).then(function (response) {
@@ -21,13 +20,12 @@ describe('query', function () {
         method: 'post', 
         body: { 
           selector: { 
-            i: { $eq: 5}
+            i: { $gt: 5}
           }
         }
       };
       return remote.request(r);
     }).then(function (response) {
-      console.log("query noindex", JSON.stringify(response));
       assert(typeof response.warning === 'string')
       response.docs.forEach(function (doc) {
         assert(doc.i > 5)
@@ -60,7 +58,6 @@ describe('query', function () {
       };
       return remote.request(r);
     }).then(function(response) {
-      console.log("create index", JSON.stringify(response));
       assert(response.result === 'created');
       assert(typeof response.id === 'string');
       assert(response.name === 'testjsonindex');
@@ -77,11 +74,10 @@ describe('query', function () {
       };
       return remote.request(r);
     }).then(function (response) {
-      console.log("query index", JSON.stringify(response));
       assert(typeof response.warning != 'string')
       
       response.docs.forEach(function (doc) {
-        assert(doc.i > 5)
+        assert(doc.i === 5)
       });
       return null;
     }, function(e) {
@@ -112,8 +108,7 @@ describe('query', function () {
         }
       };
       return remote.request(r);
-    }).then(function(response) {
-      console.log("create index", JSON.stringify(response));
+    }).then(function(response) {      
       assert(response.result === 'created');
       assert(typeof response.id === 'string');
       assert(response.name === 'testtextindex');
@@ -124,13 +119,12 @@ describe('query', function () {
         method: 'post', 
         body: { 
           selector: { 
-            i: { $eq: 5}
+            i: { $gt: 5}
           }
         }
       };
       return remote.request(r);
     }).then(function (response) {
-      console.log("query index", JSON.stringify(response));
       assert(typeof response.warning != 'string')
       
       response.docs.forEach(function (doc) {
