@@ -3,137 +3,149 @@
 
 var assert = require('assert'),
   auth = require('../lib/auth'),
-  PouchDB = require('pouchdb');
+  PouchDB = require('pouchdb'),
+  app = require('../app'),
+  remoteURL = testUtils.uniqueUserUrl(),
+  remote = new PouchDB(remoteURL);
+
+
 
 describe('query', function () {
-  it('select records without an index', function () {
-    this.timeout(10000);
-    var docCount = 10;
-    var docs = testUtils.makeDocs(docCount),
-      remoteURL = testUtils.url('bob', auth.sha1('bob')),
-      remote = new PouchDB(remoteURL);
-      
+  
+  before(function(done) {
+    var docs = testUtils.makeDocs(20);
+    remote.bulkDocs(docs, function (response) {
+      done(); 
+    });
+  });
+  
+  it('select records without an index', function (done) {
     // Cloudant "/db/_find"
-    return remote.bulkDocs(docs).then(function (response) {
-      var r = { 
-        url: '_find', 
-        method: 'post', 
-        body: { 
-          selector: { 
-            i: { $gt: 5}
-          }
+    var r = { 
+      url: '_find', 
+      method: 'post', 
+      body: { 
+        selector: { 
+          i: { $gt: 5}
         }
-      };
-      return remote.request(r);
-    }).then(function (response) {
-      assert(typeof response.warning === 'string')
+      }
+    };
+    remote.request(r, function (err, response) {
+      assert(err == null);
+      assert(typeof response.warning === 'string');
+      assert(response.docs.length > 1);
       response.docs.forEach(function (doc) {
-        assert(doc.i > 5)
+        
+        // check that our query worked (docs with i > 5)
+        assert(doc.i > 5);
+        
+        // ensure we have stripped auth information
+        assert(typeof doc[app.metaKey] == 'undefined');
       });
+      done();
+    });
+  });
+  
+  it('create json index', function(done) {
+    // Cloudant "/db/_index" 
+    // create json index
+    var r = { 
+      url: '_index', 
+      method: 'post', 
+      body: { 
+        index: {
+          fields: ['i']
+        },
+        name: 'testjsonindex',
+        type: 'json'
+      }
+    };
+    remote.request(r, function(err, response) {
+      assert(err == null);
+      assert(response.result === 'created');
+      assert(typeof response.id === 'string');
+      assert(response.name === 'testjsonindex');
+      done()
+    });
+      
+  })
+  
+  
+  it('read from json index', function (done) {
+    // perform search
+    var r = { 
+      url: '_find', 
+      method: 'post', 
+      body: { 
+        selector: { 
+          i: { $gt: 5}
+        }
+      }
+    };
+    remote.request(r, function (err, response) {
+      assert(err == null);
+      assert(typeof response.warning != 'string')
+      assert(response.docs.length > 1);
+      response.docs.forEach(function (doc) {
+        // check that our query worked (docs with i > 5)
+        assert(doc.i > 5);
+        
+        // ensure we have stripped auth information
+        assert(typeof doc[app.metaKey] == 'undefined');
+      });
+      done();
     });
   });
   
   
-  it('select records with a json index', function () {
-    this.timeout(10000);
-    var docCount = 10;
-    var docs = testUtils.makeDocs(docCount),
-      remoteURL = testUtils.url('bob', auth.sha1('bob')),
-      remote = new PouchDB(remoteURL);
-  
+  it('create text index', function (done) {
     // Cloudant "/db/_find"
-    return remote.bulkDocs(docs).then(function (response) {
-      
-      // create json index
-      var r = { 
-        url: '_index', 
-        method: 'post', 
-        body: { 
-          index: {
-            fields: ['i']
-          },
-          name: 'testjsonindex',
-          type: 'json'
-        }
-      };
-      return remote.request(r);
-    }).then(function(response) {
-      assert(response.result === 'created');
-      assert(typeof response.id === 'string');
-      assert(response.name === 'testjsonindex');
-      
-      // perform search
-      var r = { 
-        url: '_find', 
-        method: 'post', 
-        body: { 
-          selector: { 
-            i: { $eq: 5}
-          }
-        }
-      };
-      return remote.request(r);
-    }).then(function (response) {
-      assert(typeof response.warning != 'string')
-      
-      response.docs.forEach(function (doc) {
-        assert(doc.i === 5)
-      });
-      return null;
-    }, function(e) {
-      console.log("Error", e);
-    })
-  });
-  
-  it('select records with a text index', function () {
-    this.timeout(10000);
-    var docCount = 10;
-    var docs = testUtils.makeDocs(docCount),
-      remoteURL = testUtils.url('bob', auth.sha1('bob')),
-      remote = new PouchDB(remoteURL);
-  
-    // Cloudant "/db/_find"
-    return remote.bulkDocs(docs).then(function (response) {
-      
-      // create json index
-      var r = { 
-        url: '_index', 
-        method: 'post', 
-        body: { 
-          index: {
-            fields: [{name: 'i', type: 'number'}]
-          },
-          name: 'testtextindex',
-          type: 'text'
-        }
-      };
-      return remote.request(r);
-    }).then(function(response) {      
+    // create json index
+    var r = { 
+      url: '_index', 
+      method: 'post', 
+      body: { 
+        index: {
+          fields: [{name: 'i', type: 'number'}]
+        },
+        name: 'testtextindex',
+        type: 'text'
+      }
+    };
+    remote.request(r, function(err, response) {  
+      assert(err == null);    
       assert(response.result === 'created');
       assert(typeof response.id === 'string');
       assert(response.name === 'testtextindex');
-      
-      // perform search
-      var r = { 
-        url: '_find', 
-        method: 'post', 
-        body: { 
-          selector: { 
-            i: { $gt: 5}
-          }
+      done();
+    });
+    
+  });
+  
+  it('read from text index', function (done) {  
+    // perform search
+    var r = { 
+      url: '_find', 
+      method: 'post', 
+      body: { 
+        selector: { 
+          i: { $gt: 5}
         }
-      };
-      return remote.request(r);
-    }).then(function (response) {
+      }
+    };
+    remote.request(r, function (err, response) {
+      assert(err == null);
       assert(typeof response.warning != 'string')
-      
+      assert(response.docs.length > 1);
       response.docs.forEach(function (doc) {
-        assert(doc.i > 5)
+        // check that our query worked (docs with i > 5)
+        assert(doc.i > 5);
+        
+        // ensure we have stripped auth information
+        assert(typeof doc[app.metaKey] == 'undefined');
       });
-      return null;
-    }, function(e) {
-      console.log("Error", e);
-    })
+      done();
+    });
   });
   
 });
