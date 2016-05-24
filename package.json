@@ -20,7 +20,6 @@
     "basic-auth": "^1.0.3",
     "body-parser": "^1.14.2",
     "cfenv": "^1.0.3",
-    "chance": "^1.0.3",
     "cloudant": "^1.4.1",
     "compression": "^1.6.2",
     "events": "^1.1.0",
@@ -29,6 +28,7 @@
     "underscore": "^1.8.3"
   },
   "devDependencies": {
+    "chance": "^1.0.3",
     "jshint": "2.9.2",
     "mocha": "2.4.5",
     "supertest": "1.2.0",
