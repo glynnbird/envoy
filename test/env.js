@@ -4,7 +4,7 @@ var assert = require('assert'),
   env = require('../lib/env.js'),
   assert = require('assert');
 
-describe('environment variable tests - Bluemix mode', function() {
+describe('environment variable tests - Bluemix mode', function(done) {
   var originalEnv;
   before(function(done) {
     originalEnv = Object.assign({}, process.env);
@@ -28,13 +28,11 @@ describe('environment variable tests - Bluemix mode', function() {
     done();
   });
 
-  // exception when missing process.env.MBAAS_DATABASE_NAME
+  // assumes mbaas when missing process.env.MBAAS_DATABASE_NAME
   it('missing MBAAS_DATABASE_NAME', function(done) {
     delete process.env.MBAAS_DATABASE_NAME;
-    assert.throws( function() {
-      env.getCredentials();
-    });
-
+    var e = env.getCredentials();
+    assert.equal(e.databaseName, 'mbaas');
     done();
   });
 

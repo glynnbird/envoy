@@ -1,0 +1,15 @@
+---
+declared-services:
+  cloudant-envoy-service:
+    label: cloudantNoSQLDB
+    plan: Shared
+applications:
+- name: cloudant-envoy
+  memory: 512M
+  instances: 1
+  domain: mybluemix.net
+  disk_quota: 512M
+  command: node ./bin/www
+  path: .
+  services:
+  - cloudant-envoy-service
