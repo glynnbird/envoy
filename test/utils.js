@@ -57,7 +57,8 @@ testUtils.makeDocs = function(count) {
         phone: chance.phone(),
         zip: chance.zip(),
         email: chance.email()
-      }
+      },
+      i: i
     });
   }
 

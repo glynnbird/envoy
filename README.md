@@ -137,22 +137,6 @@ CouchDB uses certain special fields that starts with an underscore to denote met
 
 With this in place we can tackle the other problem: subset or filtered replication. Given that we now have a single database backing the app used by multiple users we need to ensure that mobile sync also obeys the access rules. This means that we need to ensure that the `changes`, `bulk_docs` and `revs_diff` end points also respect the authentication rules.
 
-## Cloudant Query (NOT IMPLEMENTED)
-
-All query requests need to implicitly add on a
-
-```json
-{
-    "selector": {
-        "$or": [
-            "auth.users":  { "$elemMatch": { "$eq": "USER" } },
-            "auth.groups": { "$elemMatch": { "$eq": "public" } }
-        ]
-    }  
-}
-```
-
-to ensure that the user can only see the documents they are authorised to see. The relevant indexes on the `auth` field should be created automatically.
 
 ## CRUD API
 
@@ -185,3 +169,30 @@ The changes feed should be filtered according to the same rules as a `GET` to `/
 ### POST _/{db}/\_revs\_diff_
 
 RevsDiff should check the returned list according to the same rules as a `GET` to `/{db}/{docid}`: only return changes related to documents where the requesting user is either listed in the `users` list, or the document has the `public` group ownership.
+
+## Cloudant Query API
+
+### POST _/{db}/\_index
+
+Creates a Cloudant Query index, supplementing the index to allows the ownership of a document to be queried.
+
+### POST _/{db}/\_find
+
+Queries using Cloudant Query only returning the querying user's documents.
+
+### Cloudant Query Group support (not implemented)
+
+In order to respect groups, the query would have to be modified like so:
+
+```json
+{
+    "selector": {
+        "$or": [
+            "auth.users":  { "$elemMatch": { "$eq": "USER" } },
+            "auth.groups": { "$elemMatch": { "$eq": "public" } }
+        ]
+    }  
+}
+```
+
+to ensure that the user can only see the documents they are authorised to see. The current implementation only uses auth.users.
