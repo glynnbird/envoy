@@ -8,6 +8,15 @@ Note: this is a proof of concept; it's not battle tested or supported in any way
 
 ## Installation
 
+
+### Deploy to Bluemix
+
+Cloudant Envoy can be deployed to Bluemix
+
+![Deploy to Bluemix](https://bluemix.net/deploy?repository=https://github.com/cloudant-labs/envoy)
+
+### Manual installation
+
 Cloudant Envoy is a Node.js application on top of the Express.js framework. To install, clone the repo and run `npm install`. The Envoy server needs admin credentials for the backing Cloudant database, and it expects the following environment variables to be set:
 
 ```bash
