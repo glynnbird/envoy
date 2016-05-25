@@ -92,3 +92,5 @@ async.series(
     console.log('[OK]  main: Started app on', env.url);
   }
 );
+
+require("cf-deployment-tracker-client").track();
