@@ -10,7 +10,6 @@ var app = module.exports = require('express')(),
   events = require('events'),
   ee = new events.EventEmitter(),
   morgan = require('morgan'),
-  fs = require('fs'),
   cors = require('./lib/cors'); 
 
 // Required environment variables
@@ -23,21 +22,12 @@ app.db = cloudant.db.use(dbName);
 app.metaKey = 'com_cloudant_meta';
 app.events = ee;
 app.cloudant = cloudant;
-
 app.serverURL = env.couchHost;
 
-// Set up the logging directory
-var logDirectory = __dirname + '/logs';
-if (!fs.existsSync(logDirectory)) {
-   fs.mkdirSync(logDirectory);
+// Setup the logging format
+if (env.logFormat !== 'off') {
+  app.use(morgan(env.logFormat));
 }
-
-// Create a write stream (in append mode)
-var accessLogStream =
-  fs.createWriteStream(logDirectory + '/access.log', {flags: 'a'});
-
-// Setup the logger
-app.use(morgan('dev', {stream: accessLogStream}));
 
 function main() {
 

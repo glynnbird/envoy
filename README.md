@@ -29,6 +29,30 @@ export COUCH_HOST='https://key:passwd@account.cloudant.com'
 
 After those variables are set, you can start the Envoy server with `npm start`. Note that the port is the port that Envoy will listen to, not the port of the Cloudant server.
 
+### Environment variables
+
+* PORT - the port number Envoy will listen on. When running in Bluemix, Envoy detects the Cloud Foundry port assigned to this app automatically. When running locally, you'll need to provide your own e.g. `export PORT=8001`
+* COUCH_HOST - The URL of the Cloudant service to connected to. Not required in Bluemix, as the attached Cloudant service is detected automatically. `COUCH_HOST` is required when running locally e.g. `export COUCH_HOST='https://key:passwd@account.cloudant.com'`
+* MBAAS_DATABASE_NAME - the name of the Cloudant database to use. Defaults to `mbaas`
+* LOG_FORMAT - the type of logging to output. One of `combined`, `common`, `dev`, `short`, `tiny`, `off`. Defaults to `off`. (see https://www.npmjs.com/package/morgan)
+* DEBUG - see debugging section
+
+
+## Debugging
+
+Debugging messages are controlled by the `DEBUG` environment variable. To see detailed debugging outlining the API calls being made between Envoy and Cloudant then set the `DEBUG` environment variable to `cloudant,nano` e.g
+
+```bash
+export DEBUG=cloudant,nano
+node app.js
+```
+
+or
+
+```bash
+DEBUG=cloudant,nano node app.js
+```
+
 ## Introduction
 
 Cloudant has the potential to be an ideal backend for a mobile application. It is scalable, it syncs, and being schema-free it can cope with the frequent data changes that tend to happen in mobile development.
