@@ -45,7 +45,32 @@ describe('query', function () {
       done();
     });
   });
-  
+
+  // POST /db/_index not support so should 404
+  it('fail to create json index', function(done) {
+    // Cloudant "/db/_index" 
+    // create json index
+    var r = { 
+      url: '_index', 
+      method: 'post', 
+      body: { 
+        index: {
+          fields: ['i']
+        },
+        name: 'testjsonindex',
+        type: 'json'
+      }
+    };
+    remote.request(r, function(err, response) {
+      assert(err != null);
+      assert(err.status === 404);
+      done()
+    });
+      
+  })
+
+/* Removed index creation tests - see issue #31
+    
   it('create json index', function(done) {
     // Cloudant "/db/_index" 
     // create json index
@@ -149,5 +174,6 @@ describe('query', function () {
       done();
     });
   });
+*/ 
   
 });
