@@ -3,7 +3,7 @@
 
 var PouchDB = require('pouchdb'),
   assert = require('assert'),
-  auth = require('../lib/auth');
+  utils = require('../lib/utils');
 
 // Generate a bunch of documents, and store those in a local
 // PouchDB. Kick off a push replication, and then query remote
@@ -23,7 +23,7 @@ describe('test single user sync', function () {
     this.timeout(10000);
 
     var username = 'push_repl_test';
-    var remoteURL = testUtils.url(username, auth.sha1(username));
+    var remoteURL = testUtils.url(username, utils.sha1(username));
 
     var local = new PouchDB(dbs.local);
     var remote = new PouchDB(remoteURL);
@@ -47,7 +47,7 @@ describe('test single user sync', function () {
     this.timeout(10000);
 
     var username = 'pull_repl_test';
-    var remoteURL = testUtils.url(username, auth.sha1(username));
+    var remoteURL = testUtils.url(username, utils.sha1(username));
 
     var local = new PouchDB(dbs.local);
     var remote = new PouchDB(remoteURL);
@@ -67,7 +67,7 @@ describe('test single user sync', function () {
     this.timeout(10000);
 
     var username = 'multi_repl_test';
-    var remoteURL = testUtils.url(username, auth.sha1(username));
+    var remoteURL = testUtils.url(username, utils.sha1(username));
 
     var client1 = new PouchDB(dbs.local);
     var client2 = new PouchDB(dbs.secondary);

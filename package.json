@@ -31,8 +31,10 @@
     "cloudant": "git@github.com:cloudant/nodejs-cloudant.git",
     "compression": "^1.6.2",
     "events": "^1.1.0",
-    "express": "^4.13.3",
+    "express": "^4.13.4",
     "morgan": "^1.6.1",
+    "passport": "^0.3.2",
+    "passport-http": "^0.3.0",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
@@ -49,8 +51,8 @@
   "bugs": {
     "url": "https://github.com/cloudant-labs/envoy/issues"
   },
-  "bin" : { 
-    "envoy" : "./bin/www" 
+  "bin": {
+    "envoy": "./bin/www"
   },
   "engines": {
     "node": ">=4.2.0"

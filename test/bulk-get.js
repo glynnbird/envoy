@@ -2,7 +2,7 @@
 /* globals testUtils */
 
 var assert = require('assert'),
-  auth = require('../lib/auth'),
+  utils = require('../lib/utils'),
   PouchDB = require('pouchdb');
 
 describe('bulk_get', function () {
@@ -10,7 +10,7 @@ describe('bulk_get', function () {
     this.timeout(10000);
     var docCount = 5;
     var docs = testUtils.makeDocs(docCount),
-      remoteURL = testUtils.url('bob', auth.sha1('bob')),
+      remoteURL = testUtils.url('bob', utils.sha1('bob')),
       remote = new PouchDB(remoteURL);
 
     return remote.bulkDocs(docs).then(function (response) {
