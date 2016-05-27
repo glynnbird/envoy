@@ -40,7 +40,7 @@ describe('query', function () {
         assert(doc.i > 5);
         
         // ensure we have stripped auth information
-        assert(typeof doc[app.metaKey] == 'undefined');
+        assert(typeof doc[app.metaKey] === 'undefined');
       });
       done();
     });
@@ -90,10 +90,10 @@ describe('query', function () {
       assert(response.result === 'created');
       assert(typeof response.id === 'string');
       assert(response.name === 'testjsonindex');
-      done()
+      done();
     });
       
-  })
+  });
   
   
   it('read from json index', function (done) {
@@ -118,7 +118,7 @@ describe('query', function () {
         assert(doc.i > 5);
         
         // ensure we have stripped auth information
-        assert(typeof doc[app.metaKey] == 'undefined');
+        assert(typeof doc[app.metaKey] === 'undefined');
       });
       done();
     });
@@ -162,14 +162,14 @@ describe('query', function () {
     };
     remote.request(r, function (err, response) {
       assert(err == null);
-      assert(typeof response.warning != 'string')
+      assert(typeof response.warning !== 'string');
       assert(response.docs.length > 1);
       response.docs.forEach(function (doc) {
         // check that our query worked (docs with i > 5)
         assert(doc.i > 5);
         
         // ensure we have stripped auth information
-        assert(typeof doc[app.metaKey] == 'undefined');
+        assert(typeof doc[app.metaKey] === 'undefined');
       });
       done();
     });

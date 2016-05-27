@@ -28,11 +28,9 @@ describe('test single user sync', function () {
     var local = new PouchDB(dbs.local);
     var remote = new PouchDB(remoteURL);
     var docs = testUtils.makeDocs(5);
-
     return remote.allDocs()
       .then(function (response) {
-        assert.equal(response.total_rows, 0);
-
+        assert.equal(response.rows.length, 0);
         return local.bulkDocs(docs);
       }).then(function () {
         return local.replicate.to(remote);
@@ -41,7 +39,7 @@ describe('test single user sync', function () {
         // on the remote side.
         return remote.allDocs();
       }).then(function (response) {
-        assert.equal(response.total_rows, docs.length);
+        assert.equal(response.rows.length, docs.length);
       });
   });
 
