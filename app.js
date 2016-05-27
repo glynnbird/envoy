@@ -1,6 +1,8 @@
 'use strict';
 
 var app = module.exports = require('express')(),
+  session = require('express-session'),
+  passport = require('passport'),
   compression = require('compression'),
   Cloudant = require('cloudant'),
   bodyParser = require('body-parser'),
@@ -24,6 +26,7 @@ app.events = ee;
 app.cloudant = cloudant;
 app.serverURL = env.couchHost;
 
+
 // Setup the logging format
 if (env.logFormat !== 'off') {
   app.use(morgan(env.logFormat));
@@ -40,6 +43,15 @@ function main() {
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: false }));
 
+  // passport for auth
+  app.use(session({ secret: 'envoy', maxAge: 60*60*24}));
+  app.use(passport.initialize());
+  app.use(passport.session());
+  
+  // authentication routes
+  app.use('/', require('./lib/auth').router);
+  
+  // API routes
   app.use('/', router);
 
   // Catch 404 and forward to error handler.

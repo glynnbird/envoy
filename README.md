@@ -36,7 +36,10 @@ After those variables are set, you can start the Envoy server with `npm start`. 
 * MBAAS_DATABASE_NAME - the name of the Cloudant database to use. Defaults to `mbaas`
 * LOG_FORMAT - the type of logging to output. One of `combined`, `common`, `dev`, `short`, `tiny`, `off`. Defaults to `off`. (see https://www.npmjs.com/package/morgan)
 * DEBUG - see debugging section
-* AUTH_STATEGY - the method used by users for authentication. Defaults to `basic`.
+* AUTH_STATEGY - the method used by users for authentication. One of `basic`, `google`. Defaults to `basic`. See authentication section.
+* GOOGLE_CLIENT_ID - for Google OAuth authentication
+* GOOGLE_CLIENT_SECRET - for Google OAuth authentication
+* ENVOY_URL - for Google OAuth authentication
 
 ## Debugging
 
@@ -52,6 +55,38 @@ or
 ```bash
 DEBUG=cloudant,nano node app.js
 ```
+
+## Authentication
+
+
+### Basic
+
+By default, Envoy is configured to use the `basic` authentication stategy. This means that credentials are passed in using HTTP basic authentication e.g.
+
+```
+http://myusername:mypassword@myenvoyinstance.mybluemix.net/db/_all_docs
+```
+
+This strategy is only designed for testing Envoy as there is no real user database. As long as the supplied password is equal to `sha1(username)`, then we let you in! Here are some sample usernames and passwords you can use for testing:
+
+
+* username 'rita', password '6fe06f8d903ee0d0242c6f31b94578b2957c9752'
+* usename 'sue', password '1eac7bdcbb6c569f15ecbf5cd873a2c477888e56'
+* username 'bob', password '48181acd22b3edaebc8a447868a7df7ce629920a'
+ 
+### Google
+
+Setting the `AUTH_STRATEGY` environment variable to 'google' configures Envoy to use Google OAuth2 authentication, so users can sign up for an Envoy account using their Google account. Sign up for OAuth2 credentials from the [Google Developer Console](https://console.developers.google.com/) and use the client id and secret in environment variables e.g.:
+
+```
+export AUTH_STRATEGY=google
+export GOOGLE_CLIENT_ID="mysecretclientid825125.apps.googleusercontent.com"
+export GOOGLE_CLIENT_SECRET="myclientsecret351521"
+export ENVOY_URL="http://localhost:8000"
+node app.js
+```
+
+The `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` can be found by sign up for 
 
 ## Introduction
 
