@@ -86,7 +86,7 @@ export ENVOY_URL="http://localhost:8000"
 node app.js
 ```
 
-The `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` can be found by sign up for 
+Then hit the `GET /_auth/google` endpoint in your browser to authenticate.
 
 ## Introduction
 
