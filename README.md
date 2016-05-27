@@ -36,7 +36,7 @@ After those variables are set, you can start the Envoy server with `npm start`. 
 * MBAAS_DATABASE_NAME - the name of the Cloudant database to use. Defaults to `mbaas`
 * LOG_FORMAT - the type of logging to output. One of `combined`, `common`, `dev`, `short`, `tiny`, `off`. Defaults to `off`. (see https://www.npmjs.com/package/morgan)
 * DEBUG - see debugging section
-
+* AUTH_STATEGY - the method used by users for authentication. Defaults to `basic`.
 
 ## Debugging
 
