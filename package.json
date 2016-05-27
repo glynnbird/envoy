@@ -1,14 +1,21 @@
 {
-  "name": "cds-mobile",
+  "name": "cloudant-envoy",
   "version": "0.0.0",
   "description": "A mobile backend shim to Cloudant",
-  "author": "",
+  "contributors": [
+    "Stefan Kruger <stefan.kruger@gmail.com>",
+    "Will Holley <willholley@gmail.com>",
+    "Glynn Bird <glynn.bird@gmail.com>",
+    "Tom Blench",
+    "Simon Metson",
+    "Mike Rhodes"
+  ],
   "keywords": [
     "backend",
     "node",
     "cloudant"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "scripts": {
     "start": "node ./bin/www",
     "jshint": "jshint -c .jshintrc lib/",
@@ -34,5 +41,18 @@
     "mocha": "2.4.5",
     "supertest": "1.2.0",
     "pouchdb": "^5.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cloudant-labs/envoy"
+  },
+  "bugs": {
+    "url": "https://github.com/cloudant-labs/envoy/issues"
+  },
+  "bin" : { 
+    "envoy" : "./bin/www" 
+  },
+  "engines": {
+    "node": ">=4.2.0"
   }
 }
