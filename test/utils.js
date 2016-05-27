@@ -3,8 +3,7 @@
 var chance = require('chance')(),
   url = require('url'),
   PouchDB = require('pouchdb'),
-  env = require('../lib/env.js'),
-  auth = require('../lib/auth');
+  env = require('../lib/env.js');
 
 var testUtils = {};
 var userCount = 0;
@@ -38,7 +37,7 @@ testUtils.url = function(user, password) {
 
 testUtils.uniqueUserUrl = function() {
   var username = 'user' + userCount++;
-  return testUtils.url(username, auth.sha1(username));
+  return testUtils.url(username, require('../lib/utils').sha1(username));
 };
 
 

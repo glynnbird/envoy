@@ -11,9 +11,9 @@ Note: this is a proof of concept; it's not battle tested or supported in any way
 
 ### Deploy to Bluemix
 
-he fastest way to deploy *Cloudant Envoy* to Bluemix is to click the **Deploy to Bluemix** button below.
+The fastest way to deploy *Cloudant Envoy* to Bluemix is to click the **Deploy to Bluemix** button below.
 
-![Deploy to Bluemix](https://deployment-tracker.mybluemix.net/stats/34c200255dfd02ea539780bb433da951/button.svg)](https://bluemix.net/deploy?repository=https://github.com/cloudant-labs/envoy)
+[![Deploy to Bluemix](https://deployment-tracker.mybluemix.net/stats/34c200255dfd02ea539780bb433da951/button.svg)](https://bluemix.net/deploy?repository=https://github.com/cloudant-labs/envoy)
 
 **Don't have a Bluemix account?** If you haven't already, you'll be prompted to sign up for a Bluemix account when you click the button.  Sign up, verify your email address, then return here and click the the **Deploy to Bluemix** button again. Your new credentials let you deploy to the platform and also to code online with Bluemix and Git. If you have questions about working in Bluemix, find answers in the [Bluemix Docs](https://www.ng.bluemix.net/docs/).
 
@@ -37,6 +37,18 @@ After those variables are set, you can start the Envoy server with `npm start`. 
 * LOG_FORMAT - the type of logging to output. One of `combined`, `common`, `dev`, `short`, `tiny`, `off`. Defaults to `off`. (see https://www.npmjs.com/package/morgan)
 * DEBUG - see debugging section
 
+For OAuth authentication:
+
+* AUTH_STATEGY - the method used by users for authentication. One of `basic`, `google`, `facebook`, `github`. Defaults to `basic`. See authentication section.
+* ENVOY_URL - for Google/Facebook OAuth authentication
+* GOOGLE_CLIENT_ID - for Google OAuth authentication
+* GOOGLE_CLIENT_SECRET - for Google OAuth authentication
+* FACEBOOK_APP_ID - for Facebook OAuth authentication
+* FACEBOOK_APP_SECRET - for Facebook OAuth authentication
+* GITHUB_CLIENT_ID - for Github OAuth authentication
+* GITHUB_CLIENT_SECRET - for Github OAuth authentication
+* TWITTER_CONSUMER_KEY - for Twitter OAuth authentication
+* TWITTER_CONSUMER_SECRET - for Twitter OAuth authentication
 
 ## Debugging
 
@@ -52,6 +64,82 @@ or
 ```bash
 DEBUG=cloudant,nano node app.js
 ```
+
+## Authentication
+
+
+### Basic
+
+By default, Envoy is configured to use the `basic` authentication stategy. This means that credentials are passed in using HTTP basic authentication e.g.
+
+```
+http://myusername:mypassword@myenvoyinstance.mybluemix.net/db/_all_docs
+```
+
+This strategy is only designed for testing Envoy as there is no real user database. As long as the supplied password is equal to `sha1(username)`, then we let you in! Here are some sample usernames and passwords you can use for testing:
+
+* username 'rita', password '6fe06f8d903ee0d0242c6f31b94578b2957c9752'
+* usename 'sue', password '1eac7bdcbb6c569f15ecbf5cd873a2c477888e56'
+* username 'bob', password '48181acd22b3edaebc8a447868a7df7ce629920a'
+ 
+### Google
+
+Setting the `AUTH_STRATEGY` environment variable to 'google' configures Envoy to use Google OAuth2 authentication, so users can sign up for an Envoy account using their Google account. Sign up for OAuth2 credentials from the [Google Developer Console](https://console.developers.google.com/) and use the client id and secret in environment variables e.g.:
+
+```
+export AUTH_STRATEGY=google
+export GOOGLE_CLIENT_ID="mysecretclientid825125.apps.googleusercontent.com"
+export GOOGLE_CLIENT_SECRET="myclientsecret351521"
+export ENVOY_URL="http://localhost:8000"
+node app.js
+```
+
+Then hit the `GET /_auth/google` endpoint in your browser to authenticate.
+
+### Facebook
+
+Setting the `AUTH_STRATEGY` environment variable to 'facebook' configures Envoy to use Facebook for authentication, so users can sign up for an Envoy account using their Facebook account. Sign up for OAuth2 credentials from the [Facebook Developer Dashboard](https://developers.facebook.com/) and use the app id and secret in environment variables e.g.:
+
+```
+export AUTH_STRATEGY=facebook
+export FACEBOOK_APP_ID="myclientid825125"
+export FACEBOOK_APP_SECRET="myclientsecret351521"
+export ENVOY_URL="http://localhost:8000"
+node app.js
+```
+
+Then hit the `GET /_auth/facebook` endpoint in your browser to authenticate.
+
+### GitHub
+
+Setting the `AUTH_STRATEGY` environment variable to 'github' configures Envoy to use GitHub for authentication, so users can sign up for an Envoy account using their Facebook account. Sign up for OAuth2 credentials from the [Git Hub Developers page](https://github.com/settings/applications/new), making sure you set the Authorization Callback URL to `<your Envoy URL>/_auth/github/callback` and use the app id and secret in environment variables e.g.:
+
+```
+export AUTH_STRATEGY=github
+export GITHUB_CLIENT_ID="myclientid825125"
+export GITHUB_CLIENT_SECRET="myclientsecret351521"
+export ENVOY_URL="http://localhost:8000"
+node app.js
+```
+
+Then hit the `GET /_auth/github` endpoint in your browser to authenticate.
+
+
+### Twitter
+
+Setting the `AUTH_STRATEGY` environment variable to 'twitter' configures Envoy to use Twitter for authentication, so users can sign up for an Envoy account using their Facebook account. Sign up for OAuth2 credentials from the [Twitter Developers page](https://apps.twitter.com/app/new), making sure you set the Authorization Callback URL to `<your Envoy URL>/_auth/github/callback` (localhost not allowed) and use the consumer key and secret in environment variables e.g.:
+
+```
+export AUTH_STRATEGY=twitter
+export TWITTER_CONSUMER_KEY="myclientid825125"
+export TWITTER_CONSUMER_SECRET="myclientsecret351521"
+export ENVOY_URL="http://mydomain.name.com:8000"
+node app.js
+```
+
+Then hit the `GET /_auth/github` endpoint in your browser to authenticate.
+https://apps.twitter.com/app/new
+
 
 ## Introduction
 

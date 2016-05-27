@@ -2,7 +2,6 @@
 /* globals testUtils */
 
 var assert = require('assert'),
-  auth = require('../lib/auth'),
   PouchDB = require('pouchdb'),
   app = require('../app'),
   remoteURL = testUtils.uniqueUserUrl(),

@@ -1,7 +1,5 @@
 'use strict';
 
-var auth = require('../lib/auth');
-
 process.env.MBAAS_DATABASE_NAME = 
   (process.env.MBAAS_DATABASE_NAME || 'mbaas') +
 	(new Date().getTime());
@@ -30,4 +28,4 @@ before(function(done) {
 
 global.testUtils = require('./utils.js');
 global.username = 'foo';
-global.password = auth.sha1(global.username);
+global.password = require('../lib/utils').sha1(global.username);

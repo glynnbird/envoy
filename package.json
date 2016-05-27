@@ -24,15 +24,21 @@
   },
   "dependencies": {
     "async": "^1.5.2",
-    "basic-auth": "^1.0.3",
     "body-parser": "^1.14.2",
     "cf-deployment-tracker-client": "^0.1.1",
     "cfenv": "^1.0.3",
-    "cloudant": "git@github.com:cloudant/nodejs-cloudant.git",
+    "cloudant": "https://github.com/cloudant/nodejs-cloudant.git",
     "compression": "^1.6.2",
     "events": "^1.1.0",
-    "express": "^4.13.3",
+    "express": "^4.13.4",
+    "express-session": "^1.13.0",
     "morgan": "^1.6.1",
+    "passport": "^0.3.2",
+    "passport-facebook": "^2.1.1",
+    "passport-github2": "^0.1.10",
+    "passport-google-oauth": "^1.0.0",
+    "passport-http": "^0.3.0",
+    "passport-twitter": "^1.0.4",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
@@ -49,10 +55,10 @@
   "bugs": {
     "url": "https://github.com/cloudant-labs/envoy/issues"
   },
-  "bin" : { 
-    "envoy" : "./bin/www" 
+  "bin": {
+    "envoy": "./bin/www"
   },
   "engines": {
-    "node": ">=4.2.0"
+    "node": "4.4.0"
   }
 }
