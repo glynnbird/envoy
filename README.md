@@ -45,6 +45,8 @@ For OAuth authentication:
 * GOOGLE_CLIENT_SECRET - for Google OAuth authentication
 * FACEBOOK_APP_ID - for Facebook OAuth authentication
 * FACEBOOK_APP_SECRET - for Facebook OAuth authentication
+* GITHUB_CLIENT_ID - for Github OAuth authentication
+* GITHUB_CLIENT_SECRET - for Github OAuth authentication
 
 ## Debugging
 
@@ -99,13 +101,27 @@ Setting the `AUTH_STRATEGY` environment variable to 'facebook' configures Envoy 
 
 ```
 export AUTH_STRATEGY=facebook
-export FACEBOOK_APP_ID="mysecretclientid825125.apps.googleusercontent.com"
+export FACEBOOK_APP_ID="myclientid825125"
 export FACEBOOK_APP_SECRET="myclientsecret351521"
 export ENVOY_URL="http://localhost:8000"
 node app.js
 ```
 
 Then hit the `GET /_auth/facebook` endpoint in your browser to authenticate.
+
+### GitHub
+
+Setting the `AUTH_STRATEGY` environment variable to 'github' configures Envoy to use GitHub for authentication, so users can sign up for an Envoy account using their Facebook account. Sign up for OAuth2 credentials from the [Git Hub Developers page](https://github.com/settings/applications/new), making sure you set the Authorization Callback URL to `<your Envoy URL>/_auth/github/callback` and use the app id and secret in environment variables e.g.:
+
+```
+export AUTH_STRATEGY=github
+export GITHUB_CLIENT_ID="myclientid825125"
+export GITHUB_CLIENT_SECRET="myclientsecret351521"
+export ENVOY_URL="http://localhost:8000"
+node app.js
+```
+
+Then hit the `GET /_auth/github` endpoint in your browser to authenticate.
 
 ## Introduction
 
