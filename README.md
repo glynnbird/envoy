@@ -47,6 +47,8 @@ For OAuth authentication:
 * FACEBOOK_APP_SECRET - for Facebook OAuth authentication
 * GITHUB_CLIENT_ID - for Github OAuth authentication
 * GITHUB_CLIENT_SECRET - for Github OAuth authentication
+* TWITTER_CONSUMER_KEY - for Twitter OAuth authentication
+* TWITTER_CONSUMER_SECRET - for Twitter OAuth authentication
 
 ## Debugging
 
@@ -75,7 +77,6 @@ http://myusername:mypassword@myenvoyinstance.mybluemix.net/db/_all_docs
 ```
 
 This strategy is only designed for testing Envoy as there is no real user database. As long as the supplied password is equal to `sha1(username)`, then we let you in! Here are some sample usernames and passwords you can use for testing:
-
 
 * username 'rita', password '6fe06f8d903ee0d0242c6f31b94578b2957c9752'
 * usename 'sue', password '1eac7bdcbb6c569f15ecbf5cd873a2c477888e56'
@@ -122,6 +123,23 @@ node app.js
 ```
 
 Then hit the `GET /_auth/github` endpoint in your browser to authenticate.
+
+
+### Twitter
+
+Setting the `AUTH_STRATEGY` environment variable to 'twitter' configures Envoy to use Twitter for authentication, so users can sign up for an Envoy account using their Facebook account. Sign up for OAuth2 credentials from the [Twitter Developers page](https://apps.twitter.com/app/new), making sure you set the Authorization Callback URL to `<your Envoy URL>/_auth/github/callback` (localhost not allowed) and use the consumer key and secret in environment variables e.g.:
+
+```
+export AUTH_STRATEGY=twitter
+export TWITTER_CONSUMER_KEY="myclientid825125"
+export TWITTER_CONSUMER_SECRET="myclientsecret351521"
+export ENVOY_URL="http://mydomain.name.com:8000"
+node app.js
+```
+
+Then hit the `GET /_auth/github` endpoint in your browser to authenticate.
+https://apps.twitter.com/app/new
+
 
 ## Introduction
 
