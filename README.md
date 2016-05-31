@@ -39,7 +39,7 @@ After those variables are set, you can start the Envoy server with `npm start`. 
 
 For OAuth authentication:
 
-* AUTH_STATEGY - the method used by users for authentication. One of `basic`, `google`. Defaults to `basic`. See authentication section.
+* AUTH_STATEGY - the method used by users for authentication. One of `basic`, `google`, `facebook`, `github`. Defaults to `basic`. See authentication section.
 * ENVOY_URL - for Google/Facebook OAuth authentication
 * GOOGLE_CLIENT_ID - for Google OAuth authentication
 * GOOGLE_CLIENT_SECRET - for Google OAuth authentication
