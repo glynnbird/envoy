@@ -11,9 +11,9 @@ Note: this is a proof of concept; it's not battle tested or supported in any way
 
 ### Deploy to Bluemix
 
-he fastest way to deploy *Cloudant Envoy* to Bluemix is to click the **Deploy to Bluemix** button below.
+The fastest way to deploy *Cloudant Envoy* to Bluemix is to click the **Deploy to Bluemix** button below.
 
-![Deploy to Bluemix](https://deployment-tracker.mybluemix.net/stats/34c200255dfd02ea539780bb433da951/button.svg)](https://bluemix.net/deploy?repository=https://github.com/cloudant-labs/envoy)
+[![Deploy to Bluemix](https://deployment-tracker.mybluemix.net/stats/34c200255dfd02ea539780bb433da951/button.svg)](https://bluemix.net/deploy?repository=https://github.com/cloudant-labs/envoy)
 
 **Don't have a Bluemix account?** If you haven't already, you'll be prompted to sign up for a Bluemix account when you click the button.  Sign up, verify your email address, then return here and click the the **Deploy to Bluemix** button again. Your new credentials let you deploy to the platform and also to code online with Bluemix and Git. If you have questions about working in Bluemix, find answers in the [Bluemix Docs](https://www.ng.bluemix.net/docs/).
 
@@ -36,10 +36,15 @@ After those variables are set, you can start the Envoy server with `npm start`. 
 * MBAAS_DATABASE_NAME - the name of the Cloudant database to use. Defaults to `mbaas`
 * LOG_FORMAT - the type of logging to output. One of `combined`, `common`, `dev`, `short`, `tiny`, `off`. Defaults to `off`. (see https://www.npmjs.com/package/morgan)
 * DEBUG - see debugging section
+
+For OAuth authentication:
+
 * AUTH_STATEGY - the method used by users for authentication. One of `basic`, `google`. Defaults to `basic`. See authentication section.
+* ENVOY_URL - for Google/Facebook OAuth authentication
 * GOOGLE_CLIENT_ID - for Google OAuth authentication
 * GOOGLE_CLIENT_SECRET - for Google OAuth authentication
-* ENVOY_URL - for Google OAuth authentication
+* FACEBOOK_APP_ID - for Facebook OAuth authentication
+* FACEBOOK_APP_SECRET - for Facebook OAuth authentication
 
 ## Debugging
 
@@ -87,6 +92,20 @@ node app.js
 ```
 
 Then hit the `GET /_auth/google` endpoint in your browser to authenticate.
+
+### Facebook
+
+Setting the `AUTH_STRATEGY` environment variable to 'facebook' configures Envoy to use Facebook for authentication, so users can sign up for an Envoy account using their Facebook account. Sign up for OAuth2 credentials from the [Facebook Developer Dashboard](https://developers.facebook.com/) and use the app id and secret in environment variables e.g.:
+
+```
+export AUTH_STRATEGY=facebook
+export FACEBOOK_APP_ID="mysecretclientid825125.apps.googleusercontent.com"
+export FACEBOOK_APP_SECRET="myclientsecret351521"
+export ENVOY_URL="http://localhost:8000"
+node app.js
+```
+
+Then hit the `GET /_auth/facebook` endpoint in your browser to authenticate.
 
 ## Introduction
 
