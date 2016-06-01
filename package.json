@@ -27,7 +27,7 @@
     "body-parser": "^1.14.2",
     "cf-deployment-tracker-client": "^0.1.1",
     "cfenv": "^1.0.3",
-    "cloudant": "git@github.com:cloudant/nodejs-cloudant.git",
+    "cloudant": "https://github.com/cloudant/nodejs-cloudant.git",
     "compression": "^1.6.2",
     "events": "^1.1.0",
     "express": "^4.13.4",
@@ -59,6 +59,6 @@
     "envoy": "./bin/www"
   },
   "engines": {
-    "node": ">=4.2.0"
+    "node": "4.4.0"
   }
 }
